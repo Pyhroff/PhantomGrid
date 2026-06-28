@@ -1,7 +1,7 @@
 # PhantomGrid — AI-Driven Passive Behavioural Authentication Engine
 
 <p align="center">
-  <img src="architecture.svg" width="720" alt="PhantomGrid Architecture"/>
+  <img src="https://raw.githubusercontent.com/Pyhroff/PhantomGrid/master/architecture.svg" width="720" alt="PhantomGrid Architecture"/>
 </p>
 
 <p align="center">
