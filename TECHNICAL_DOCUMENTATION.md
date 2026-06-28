@@ -35,7 +35,7 @@ PhantomGrid follows a three-tier architecture with clear separation of concerns:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  TIER 1: Signal Capture (Browser)                   │
+│  TIER 1: Signal Capture — Madapati Jyoti Radithya   │
 │  capture.js — behavioural hooks injected into       │
 │  the banking portal. Captures L1/L2/L3 signals      │
 │  and packages them into a single JSON payload.      │
@@ -321,5 +321,15 @@ Inference time per session: L1 ~0.1ms, L2 ~0.1ms, L3 ~0.01ms, fusion ~0.001ms. T
 
 ---
 
+---
+
+## Team
+
+| Role | Name |
+|------|------|
+| Frontend — Signal Capture | Madapati Jyoti Radithya |
+| Backend — ML Engine | Kontheti Sai Akhilesh |
+| Dashboard + Security + Tests (Lead) | Praising Y Harris Ratnam |
+
 *PhantomGrid — Passive. Invisible. Unbeatable.*
-*Team ZeroIntent | CBI Hackathon 2026 | MNNIT Allahabad*
+*Team ZeroIntent | S.No. 8 | CBI Hackathon 2026 | MNNIT Allahabad | IIIT Kottayam*
