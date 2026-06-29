@@ -446,7 +446,10 @@
 
 <script>
 // ── Config ─────────────────────────────────────────────────────────────────
-const BASE = (window.PHANTOMGRID_API || 'http://localhost:8000');
+// Auto-detect: use Railway in production, localhost for local dev
+const BASE = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
+  ? 'http://localhost:8000'
+  : 'https://phantomgrid-production.up.railway.app';
 
 // ── State ──────────────────────────────────────────────────────────────────
 let currentUser   = '';
