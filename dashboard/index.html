@@ -527,7 +527,7 @@
   </div>
   <div id="user-controls">
     <span style="color:var(--muted);font-size:11px">User:</span>
-    <input id="user-input" type="text" placeholder="user_id" />
+    <input id="user-input" type="text" placeholder="filter by user (optional)" />
     <button id="connect-btn">Connect</button>
   </div>
 </div>
@@ -815,20 +815,23 @@ async function refreshMaturity() {
 
 // ── Main poll ──────────────────────────────────────────────────────────────
 async function poll() {
-  if (!currentUser) return;
   try {
-    const r = await fetch(`${BASE}/logs?user_id=${encodeURIComponent(currentUser)}`);
+    // If user_id is set, filter by user. Otherwise show ALL recent sessions.
+    const url = currentUser
+      ? `${BASE}/logs?user_id=${encodeURIComponent(currentUser)}`
+      : `${BASE}/logs`;
+    const r = await fetch(url);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const rows = await r.json();
 
     if (!rows || !rows.length) {
-      setStatus('green', '● Connected — no sessions recorded yet for this user');
+      setStatus('green', '● Live — no sessions recorded yet');
       return;
     }
 
-    const latest   = rows[0];
+    const latest    = rows[0];
     const composite = Number(latest.composite_score);
-    const level    = decisionToLevel(latest.decision);
+    const level     = decisionToLevel(latest.decision);
 
     animateGauge(composite, scoreColour(composite));
     updateBar('bar1', 'val1', Number(latest.layer1_score));
@@ -836,9 +839,9 @@ async function poll() {
     updateBar('bar3', 'val3', Number(latest.layer3_score));
 
     const msgs = {
-      green: `ALLOW — Session safe · composite ${composite.toFixed(1)}`,
+      green: `ALLOW — Session safe · composite ${composite.toFixed(1)} · user ${latest.user_id}`,
       amber: `OTP — Elevated risk · step-up auth triggered · composite ${composite.toFixed(1)}`,
-      red:   `BLOCK — Threat detected! Transaction stopped · composite ${composite.toFixed(1)}`
+      red:   `BLOCK — Threat detected! Transaction stopped · composite ${composite.toFixed(1)} · user ${latest.user_id}`
     };
     setStatus(level, `● ${msgs[level]}`);
 
@@ -848,7 +851,7 @@ async function poll() {
     updateTrendChart(rows);
     updateHeatmap(rows);
     refreshAudit();
-    refreshMaturity();
+    if (currentUser) refreshMaturity();
 
   } catch(e) {
     setStatus('offline', '⚠ API offline — backend not reachable');
@@ -857,8 +860,7 @@ async function poll() {
 
 // ── Start / stop polling ───────────────────────────────────────────────────
 function startPolling(uid) {
-  currentUser = uid.trim();
-  if (!currentUser) return;
+  currentUser = (uid || '').trim();
   document.getElementById('user-input').value = currentUser;
   if (pollTimer) clearInterval(pollTimer);
   poll();
@@ -878,12 +880,8 @@ drawGauge(0, '#21262d');
 initTrendChart();
 initHeatmapChart();
 
-const initUser = getUrlUser();
-if (initUser) {
-  startPolling(initUser);
-} else {
-  setStatus('offline', 'Enter a user ID and click Connect');
-}
+// Auto-start polling all sessions. If URL has ?user_id= filter to that user.
+startPolling(getUrlUser());
 </script>
 </body>
 </html>
