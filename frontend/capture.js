@@ -206,32 +206,27 @@ function sendToBackend(signalPackage) {
 
     if (ENROLL_MODE) {
 
-      if (
-        result.message &&
-        result.message.includes("/5")
-      ) {
-
-        alert(
-          result.message
-        );
-
+      if (result.message && result.message.includes("/5")) {
+        alert(result.message);
       }
 
-      if (result.message && (result.message.includes("Enrollment") || result.message.includes("complete"))) 
-      {
+      // Switch to verify mode when 5th sample stored ("5/5") OR
+      // backend says enrollment already complete
+      var done = result.message && (
+        result.message.includes("5/5") ||
+        result.message.includes("Enrollment") ||
+        result.message.includes("complete")
+      );
+
+      if (done) {
         ENROLL_MODE = false;
-
-        localStorage.setItem(
-          "pg_enroll_mode",
-          "false"
-        );
-
-        alert(
-          "Enrollment Complete. Verification Mode Activated."
-        );
-
+        localStorage.setItem("pg_enroll_mode", "false");
+        alert("Enrollment Complete! Switching to live scoring mode.");
       }
 
+      // Re-enable Pay button after enrollment response
+      var btn = document.getElementById('pay-btn');
+      if (btn) { btn.disabled = false; btn.textContent = 'Pay'; }
       return;
     }
 
@@ -239,18 +234,22 @@ function sendToBackend(signalPackage) {
     // Verification Mode
     // ------------------------
 
-    handleBackendResult(
-      result
-    );
+    // Re-enable Pay button before showing result modal
+    var btn = document.getElementById('pay-btn');
+    if (btn) { btn.disabled = false; btn.textContent = 'Pay'; }
+
+    handleBackendResult(result);
 
   })
 
   .catch(function(err) {
-
-    console.error(
-      '[PhantomGrid]',
-      err
-    );
+    // Always re-enable the Pay button so user isn't stuck on "Processing..."
+    var btn = document.getElementById('pay-btn');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Pay';
+    }
+    console.error('[PhantomGrid]', err);
 
   });
 }
