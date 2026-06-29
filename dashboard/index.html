@@ -309,6 +309,42 @@
     transition: opacity 0.2s;
   }
   #connect-btn:hover { opacity: 0.85; }
+
+  /* ── Trend Chart ── */
+  #trend-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 20px;
+    flex-shrink: 0;
+    height: 130px;
+  }
+  #trend-section .panel-title { margin-bottom: 6px; }
+  #trend-chart { width: 100% !important; height: 90px !important; }
+
+  /* ── Fraud Alert ── */
+  #fraud-alert {
+    display: none;
+    position: fixed;
+    top: 60px; left: 50%; transform: translateX(-50%);
+    z-index: 9999;
+    background: #7f1d1d;
+    border: 2px solid #dc2626;
+    border-radius: 8px;
+    padding: 14px 28px;
+    color: #fca5a5;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(220,38,38,0.5);
+    animation: fraud-pulse 0.5s ease-in-out;
+  }
+  #fraud-alert.visible { display: block; }
+  @keyframes fraud-pulse {
+    0%   { transform: translateX(-50%) scale(0.9); opacity: 0; }
+    60%  { transform: translateX(-50%) scale(1.04); }
+    100% { transform: translateX(-50%) scale(1); opacity: 1; }
+  }
 </style>
 </head>
 <body>
@@ -384,6 +420,17 @@
   <span>OTP RE-AUTH TRIGGERED — Elevated risk detected. Silent OTP overlay sent to user.</span>
 </div>
 
+<!-- Fraud Desk Alert (shown when BLOCK) -->
+<div id="fraud-alert">
+  🚨 FRAUD ALERT DISPATCHED — Session frozen. Fraud desk notified. Transaction blocked.
+</div>
+
+<!-- Risk Trend Chart -->
+<div id="trend-section">
+  <div class="panel-title">Risk Score Trend — Last 20 Sessions</div>
+  <canvas id="trend-chart"></canvas>
+</div>
+
 <!-- Status bar -->
 <div id="status-bar">
   <div id="status-text">
@@ -398,157 +445,122 @@
 </div>
 
 <script>
+// ── Config ─────────────────────────────────────────────────────────────────
+const BASE = (window.PHANTOMGRID_API || 'http://localhost:8000');
+
 // ── State ──────────────────────────────────────────────────────────────────
-const BASE = 'http://localhost:8000';
-let currentUser = '';
-let pollTimer = null;
-let lastComposite = null;
+let currentUser   = '';
+let pollTimer     = null;
+let lastAlertSid  = null;
+let lastDecision  = null;
+let trendChart    = null;
+let gaugeAnimCurrent = 0;
+let gaugeRaf      = null;
 
 // ── URL param ──────────────────────────────────────────────────────────────
 function getUrlUser() {
-  const p = new URLSearchParams(window.location.search);
-  return p.get('user_id') || '';
+  return new URLSearchParams(window.location.search).get('user_id') || '';
 }
 
 // ── Colour helpers ─────────────────────────────────────────────────────────
 function scoreColour(s) {
-  if (s < 60)  return '#16a34a';
-  if (s < 85)  return '#d97706';
+  if (s < 60) return '#16a34a';
+  if (s < 80) return '#d97706';
   return '#dc2626';
 }
-function decisionLabel(d) {
-  if (!d) return '';
-  return d.toUpperCase();
+function decisionToLevel(d) {
+  const u = (d || '').toUpperCase();
+  if (u === 'ALLOW') return 'green';
+  if (u === 'OTP')   return 'amber';
+  if (u === 'BLOCK') return 'red';
+  return 'green';
 }
 function badgeClass(d) {
-  if (!d) return '';
-  const m = { green: 'badge-green', amber: 'badge-amber', red: 'badge-red' };
-  return m[d.toLowerCase()] || '';
+  return { green:'badge-green', amber:'badge-amber', red:'badge-red' }[decisionToLevel(d)] || '';
 }
 
-// ── Gauge (SVG arc via Canvas) ─────────────────────────────────────────────
+// ── Gauge ──────────────────────────────────────────────────────────────────
 const gaugeCanvas = document.getElementById('gauge-canvas');
 const gCtx = gaugeCanvas.getContext('2d');
-let gaugeAnimTarget = 0;
-let gaugeAnimCurrent = 0;
-let gaugeRaf = null;
 
 function drawGauge(value, colour) {
-  const W = 200, H = 130;
-  const cx = 100, cy = 115;
-  const R = 85;
-  const startAngle = Math.PI;
-  const endAngle = 0;
-
-  gCtx.clearRect(0, 0, W, H);
-
-  // Track
+  const cx = 100, cy = 115, R = 85;
+  gCtx.clearRect(0, 0, 200, 130);
   gCtx.beginPath();
-  gCtx.arc(cx, cy, R, startAngle, endAngle);
-  gCtx.strokeStyle = '#21262d';
-  gCtx.lineWidth = 14;
-  gCtx.lineCap = 'round';
+  gCtx.arc(cx, cy, R, Math.PI, 0);
+  gCtx.strokeStyle = '#21262d'; gCtx.lineWidth = 14; gCtx.lineCap = 'round';
   gCtx.stroke();
-
-  // Fill
-  const fillAngle = startAngle + (value / 100) * Math.PI;
   gCtx.beginPath();
-  gCtx.arc(cx, cy, R, startAngle, fillAngle);
-  gCtx.strokeStyle = colour;
-  gCtx.lineWidth = 14;
-  gCtx.lineCap = 'round';
+  gCtx.arc(cx, cy, R, Math.PI, Math.PI + (value / 100) * Math.PI);
+  gCtx.strokeStyle = colour; gCtx.lineWidth = 14; gCtx.lineCap = 'round';
   gCtx.stroke();
-
-  // Tick marks
   for (let i = 0; i <= 10; i++) {
     const a = Math.PI + (i / 10) * Math.PI;
-    const r1 = R + 10, r2 = R + 16;
     gCtx.beginPath();
-    gCtx.moveTo(cx + r1 * Math.cos(a), cy + r1 * Math.sin(a));
-    gCtx.lineTo(cx + r2 * Math.cos(a), cy + r2 * Math.sin(a));
-    gCtx.strokeStyle = '#21262d';
-    gCtx.lineWidth = 1.5;
-    gCtx.stroke();
+    gCtx.moveTo(cx + (R+10)*Math.cos(a), cy + (R+10)*Math.sin(a));
+    gCtx.lineTo(cx + (R+16)*Math.cos(a), cy + (R+16)*Math.sin(a));
+    gCtx.strokeStyle = '#21262d'; gCtx.lineWidth = 1.5; gCtx.stroke();
   }
 }
 
 function animateGauge(target, colour) {
   if (gaugeRaf) cancelAnimationFrame(gaugeRaf);
-  const start = gaugeAnimCurrent;
-  const delta = target - start;
-  const duration = 500;
-  const t0 = performance.now();
-
+  const start = gaugeAnimCurrent, delta = target - start, t0 = performance.now();
   function step(now) {
-    const elapsed = now - t0;
-    const progress = Math.min(elapsed / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    gaugeAnimCurrent = start + delta * ease;
+    const p = Math.min((now - t0) / 500, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    gaugeAnimCurrent = start + delta * e;
     drawGauge(gaugeAnimCurrent, colour);
     document.getElementById('gauge-value').textContent = Math.round(gaugeAnimCurrent);
     document.getElementById('gauge-value').style.color = colour;
-    if (progress < 1) gaugeRaf = requestAnimationFrame(step);
+    if (p < 1) gaugeRaf = requestAnimationFrame(step);
   }
   gaugeRaf = requestAnimationFrame(step);
 }
 
 // ── Layer bars ─────────────────────────────────────────────────────────────
 function updateBar(id, valId, score) {
-  const bar = document.getElementById(id);
-  const val = document.getElementById(valId);
   const pct = Math.min(Math.max(score, 0), 100);
+  const bar = document.getElementById(id);
   bar.style.width = pct + '%';
   bar.style.backgroundColor = scoreColour(pct);
+  const val = document.getElementById(valId);
   val.textContent = Math.round(score);
   val.style.color = scoreColour(pct);
 }
 
 // ── Status bar ─────────────────────────────────────────────────────────────
-let lastDecision = null;
-
-function setStatus(decision, msg) {
+function setStatus(level, msg) {
   const dot   = document.getElementById('status-dot');
   const txt   = document.getElementById('status-msg');
   const bar   = document.getElementById('status-bar');
   const toast = document.getElementById('otp-toast');
-
   txt.textContent = msg;
-
-  const colours = { green: '#16a34a', amber: '#d97706', red: '#dc2626' };
-  dot.style.backgroundColor = colours[decision] || '#8b949e';
-
-  // Flash status bar on threat transitions
-  if (decision === 'red') {
-    bar.classList.remove('flash-red', 'flash-amber');
-    void bar.offsetWidth;
+  const colours = { green:'#16a34a', amber:'#d97706', red:'#dc2626' };
+  dot.style.backgroundColor = colours[level] || '#8b949e';
+  if (level === 'red') {
+    bar.classList.remove('flash-red','flash-amber'); void bar.offsetWidth;
     bar.classList.add('flash-red');
-  } else if (decision === 'amber' && lastDecision !== 'amber') {
-    bar.classList.remove('flash-red', 'flash-amber');
-    void bar.offsetWidth;
+  } else if (level === 'amber' && lastDecision !== 'amber') {
+    bar.classList.remove('flash-red','flash-amber'); void bar.offsetWidth;
     bar.classList.add('flash-amber');
-  } else if (decision === 'green') {
-    bar.classList.remove('flash-red', 'flash-amber');
+  } else if (level === 'green') {
+    bar.classList.remove('flash-red','flash-amber');
   }
-
-  // OTP toast — show on amber, hide on green/red
-  if (decision === 'amber') {
-    toast.classList.add('visible');
-  } else {
-    toast.classList.remove('visible');
-  }
-
-  lastDecision = decision;
+  toast.classList.toggle('visible', level === 'amber');
+  lastDecision = level;
 }
 
 // ── Session table ──────────────────────────────────────────────────────────
 function renderSessions(rows) {
   const tbody = document.getElementById('session-tbody');
-  if (!rows || rows.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:24px">No sessions recorded yet.</td></tr>';
+  if (!rows || !rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:24px">No sessions yet for this user.</td></tr>';
     return;
   }
   tbody.innerHTML = rows.map(s => {
-    const t = new Date(s.timestamp).toLocaleTimeString();
+    const t   = new Date(s.timestamp).toLocaleTimeString();
+    const lvl = decisionToLevel(s.decision);
     return `<tr>
       <td>${t}</td>
       <td style="color:var(--cyan)">${s.user_id || currentUser}</td>
@@ -556,52 +568,137 @@ function renderSessions(rows) {
       <td>${Number(s.layer2_score).toFixed(1)}</td>
       <td>${Number(s.layer3_score).toFixed(1)}</td>
       <td style="font-weight:700;color:${scoreColour(s.composite_score)}">${Number(s.composite_score).toFixed(1)}</td>
-      <td><span class="badge ${badgeClass(s.decision)}">${decisionLabel(s.decision)}</span></td>
+      <td><span class="badge ${badgeClass(s.decision)}">${(s.decision||'').toUpperCase()}</span></td>
     </tr>`;
   }).join('');
 }
 
-// ── Poll composite ─────────────────────────────────────────────────────────
-async function pollComposite() {
-  if (!currentUser) return;
-
-  try {
-    const r = await fetch(`${BASE}/risk/composite?user_id=${encodeURIComponent(currentUser)}`);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-
-    const composite = data.composite_score ?? data.composite ?? 0;
-    const decision  = (data.decision || 'green').toLowerCase();
-    const breakdown = data.breakdown || {};
-
-    animateGauge(composite, scoreColour(composite));
-
-    const l1 = breakdown.layer1 ?? breakdown.l1 ?? 0;
-    const l2 = breakdown.layer2 ?? breakdown.l2 ?? 0;
-    const l3 = breakdown.layer3 ?? breakdown.l3 ?? 0;
-    updateBar('bar1', 'val1', l1);
-    updateBar('bar2', 'val2', l2);
-    updateBar('bar3', 'val3', l3);
-
-    const labels = { green: 'GREEN — Session safe', amber: 'AMBER — OTP re-auth triggered', red: 'RED — Threat detected' };
-    setStatus(decision, `● ${labels[decision] || decision.toUpperCase()}`);
-
-  } catch (e) {
-    setStatus('offline', '⚠ API offline — check localhost:8000');
-  }
+// ── Trend Chart ────────────────────────────────────────────────────────────
+function initTrendChart() {
+  const ctx = document.getElementById('trend-chart').getContext('2d');
+  trendChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Composite Risk',
+        data: [],
+        borderColor: '#00d4ff',
+        backgroundColor: 'rgba(0,212,255,0.07)',
+        borderWidth: 2,
+        pointBackgroundColor: [],
+        pointRadius: 5,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 400 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `Score: ${c.raw}` } }
+      },
+      scales: {
+        x: { ticks: { color:'#8b949e', maxRotation:0, font:{size:9} }, grid:{ color:'#21262d' } },
+        y: { min:0, max:100, ticks:{ color:'#8b949e', font:{size:9} }, grid:{ color:'#21262d' } }
+      }
+    }
+  });
 }
 
-// ── Poll sessions ──────────────────────────────────────────────────────────
-async function pollSessions() {
+function updateTrendChart(rows) {
+  if (!trendChart || !rows || !rows.length) return;
+  const sorted = [...rows].reverse();
+  trendChart.data.labels = sorted.map(r => new Date(r.timestamp).toLocaleTimeString());
+  trendChart.data.datasets[0].data = sorted.map(r => Number(r.composite_score).toFixed(1));
+  trendChart.data.datasets[0].pointBackgroundColor = sorted.map(r => scoreColour(r.composite_score));
+  trendChart.update();
+}
+
+// ── Fraud Alert ────────────────────────────────────────────────────────────
+function showFraudAlert(sid) {
+  if (lastAlertSid === sid) return;
+  lastAlertSid = sid;
+  const el = document.getElementById('fraud-alert');
+  el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 6000);
+  try {
+    const ac = new AudioContext();
+    const osc = ac.createOscillator(), gain = ac.createGain();
+    osc.connect(gain); gain.connect(ac.destination);
+    osc.type = 'square'; osc.frequency.value = 440;
+    gain.gain.setValueAtTime(0.12, ac.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.6);
+    osc.start(); osc.stop(ac.currentTime + 0.6);
+  } catch(e) {}
+}
+
+// ── Audit badge ────────────────────────────────────────────────────────────
+async function refreshAudit() {
+  try {
+    const r  = await fetch(`${BASE}/audit/verify`);
+    const d  = await r.json();
+    const el = document.getElementById('audit-badge');
+    if (!el) return;
+    el.textContent = d.valid
+      ? `🛡 AUDIT VERIFIED ✓ (${d.verified})`
+      : `⚠ AUDIT TAMPERED ✗ (session ${d.broken_at_session})`;
+    el.style.color = d.valid ? '#16a34a' : '#dc2626';
+  } catch(e) {}
+}
+
+// ── Maturity ───────────────────────────────────────────────────────────────
+async function refreshMaturity() {
   if (!currentUser) return;
   try {
-    // TODO Person 2: implement GET /sessions?user_id={uid}&limit=10
-    const r = await fetch(`${BASE}/sessions?user_id=${encodeURIComponent(currentUser)}&limit=10`);
+    const r  = await fetch(`${BASE}/maturity?user_id=${encodeURIComponent(currentUser)}`);
+    const d  = await r.json();
+    const el = document.getElementById('maturity-line');
+    if (!el) return;
+    el.textContent = `Baseline ${d.samples}/${d.required} · ${d.status} · confidence: ${d.confidence}`;
+  } catch(e) {}
+}
+
+// ── Main poll ──────────────────────────────────────────────────────────────
+async function poll() {
+  if (!currentUser) return;
+  try {
+    const r = await fetch(`${BASE}/logs?user_id=${encodeURIComponent(currentUser)}`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const data = await r.json();
-    renderSessions(data);
-  } catch (_) {
-    // Endpoint may not exist yet — table stays with placeholder
+    const rows = await r.json();
+
+    if (!rows || !rows.length) {
+      setStatus('green', '● Connected — no sessions recorded yet for this user');
+      return;
+    }
+
+    const latest   = rows[0];
+    const composite = Number(latest.composite_score);
+    const level    = decisionToLevel(latest.decision);
+
+    animateGauge(composite, scoreColour(composite));
+    updateBar('bar1', 'val1', Number(latest.layer1_score));
+    updateBar('bar2', 'val2', Number(latest.layer2_score));
+    updateBar('bar3', 'val3', Number(latest.layer3_score));
+
+    const msgs = {
+      green: `ALLOW — Session safe · composite ${composite.toFixed(1)}`,
+      amber: `OTP — Elevated risk · step-up auth triggered · composite ${composite.toFixed(1)}`,
+      red:   `BLOCK — Threat detected! Transaction stopped · composite ${composite.toFixed(1)}`
+    };
+    setStatus(level, `● ${msgs[level]}`);
+
+    if (level === 'red') showFraudAlert(latest.session_id);
+
+    renderSessions(rows);
+    updateTrendChart(rows);
+    refreshAudit();
+    refreshMaturity();
+
+  } catch(e) {
+    setStatus('offline', '⚠ API offline — backend not reachable');
   }
 }
 
@@ -609,16 +706,10 @@ async function pollSessions() {
 function startPolling(uid) {
   currentUser = uid.trim();
   if (!currentUser) return;
-
   document.getElementById('user-input').value = currentUser;
   if (pollTimer) clearInterval(pollTimer);
-
-  pollComposite();
-  pollSessions();
-  pollTimer = setInterval(() => {
-    pollComposite();
-    pollSessions();
-  }, 2000);
+  poll();
+  pollTimer = setInterval(poll, 2000);
 }
 
 // ── Connect button ─────────────────────────────────────────────────────────
@@ -631,6 +722,7 @@ document.getElementById('user-input').addEventListener('keydown', e => {
 
 // ── Init ───────────────────────────────────────────────────────────────────
 drawGauge(0, '#21262d');
+initTrendChart();
 
 const initUser = getUrlUser();
 if (initUser) {

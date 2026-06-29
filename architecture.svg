@@ -1,0 +1,68 @@
+<svg viewBox="0 0 940 700" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', system-ui, sans-serif">
+<title>PhantomGrid system architecture</title>
+<desc>Browser captures three behavioral layers and posts them across a trust boundary to a FastAPI backend, which scores each layer continuously, fuses them, and returns an ALLOW, OTP, or BLOCK decision. Sessions are logged to SQLite and shown on an analyst dashboard.</desc>
+<rect x="0" y="0" width="940" height="700" fill="#0d1117"/>
+<defs>
+<marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#00b4d8"/>
+</marker>
+</defs>
+<text x="28" y="34" font-size="22" font-weight="800" fill="#e6edf3">PhantomGrid — System Architecture</text>
+<text x="28" y="56" font-size="13" fill="#e6edf3" opacity="0.6">Passive three-layer behavioral authentication · combined /enroll · /verify · /logs API</text>
+<rect x="24" y="76" width="600" height="118" rx="10" fill="#8b5cf614" stroke="#8b5cf6" stroke-width="1.5"/>
+<text x="40" y="100" font-size="12" font-weight="700" fill="#8b5cf6" letter-spacing="1.5">CLIENT · UNTRUSTED ZONE</text>
+<text x="40" y="124" font-size="15" font-weight="700" fill="#e6edf3">Browser — NexaBank Portal + capture.js</text>
+<rect x="40" y="138" width="172" height="42" rx="7" fill="#00b4d810" stroke="#00b4d8" stroke-width="1.2"/>
+<text x="126" y="158" font-size="12" font-weight="700" fill="#e6edf3" text-anchor="middle">L1 · CognitiveTrap</text>
+<text x="126" y="173" font-size="10.5" fill="#e6edf3" opacity="0.65" text-anchor="middle">decoy taps</text>
+<rect x="226" y="138" width="172" height="42" rx="7" fill="#00b4d810" stroke="#00b4d8" stroke-width="1.2"/>
+<text x="312" y="158" font-size="12" font-weight="700" fill="#e6edf3" text-anchor="middle">L2 · IntentTrace</text>
+<text x="312" y="173" font-size="10.5" fill="#e6edf3" opacity="0.65" text-anchor="middle">nav + beneficiary dwell</text>
+<rect x="412" y="138" width="172" height="42" rx="7" fill="#00b4d810" stroke="#00b4d8" stroke-width="1.2"/>
+<text x="498" y="158" font-size="12" font-weight="700" fill="#e6edf3" text-anchor="middle">L3 · RhythmLock</text>
+<text x="498" y="173" font-size="10.5" fill="#e6edf3" opacity="0.65" text-anchor="middle">PIN keystroke rhythm</text>
+<line x1="24" y1="212" x2="916" y2="212" stroke="#dc2626" stroke-width="1.6" stroke-dasharray="7 5" opacity="0.8"/>
+<text x="916" y="207" font-size="11" font-weight="700" fill="#dc2626" text-anchor="end" letter-spacing="1">⟂ TRUST BOUNDARY</text>
+<line x1="324" y1="194" x2="324" y2="246" stroke="#00b4d8" stroke-width="2" marker-end="url(#ah)"/>
+<text x="334" y="232" font-size="11.5" font-weight="600" fill="#e6edf3">POST /enroll ×5  →  /verify  (one JSON package)</text>
+<rect x="24" y="248" width="600" height="284" rx="10" fill="#16a34a10" stroke="#3fb950" stroke-width="1.5"/>
+<text x="40" y="272" font-size="12" font-weight="700" fill="#3fb950" letter-spacing="1.5">FastAPI BACKEND · TRUSTED ZONE</text>
+<rect x="40" y="284" width="172" height="56" rx="7" fill="#00b4d810" stroke="#00b4d8" stroke-width="1.2"/>
+<text x="126" y="306" font-size="12.5" font-weight="700" fill="#e6edf3" text-anchor="middle">Layer 1</text>
+<text x="126" y="324" font-size="10.5" fill="#e6edf3" opacity="0.7" text-anchor="middle">IsolationForest</text>
+<rect x="226" y="284" width="172" height="56" rx="7" fill="#00b4d810" stroke="#00b4d8" stroke-width="1.2"/>
+<text x="312" y="306" font-size="12.5" font-weight="700" fill="#e6edf3" text-anchor="middle">Layer 2</text>
+<text x="312" y="324" font-size="10.5" fill="#e6edf3" opacity="0.7" text-anchor="middle">IsolationForest</text>
+<rect x="412" y="284" width="172" height="56" rx="7" fill="#00b4d810" stroke="#00b4d8" stroke-width="1.2"/>
+<text x="498" y="306" font-size="12.5" font-weight="700" fill="#e6edf3" text-anchor="middle">Layer 3</text>
+<text x="498" y="324" font-size="10.5" fill="#e6edf3" opacity="0.7" text-anchor="middle">DTW distance</text>
+<line x1="312" y1="340" x2="312" y2="356" stroke="#00b4d8" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="120" y="358" width="408" height="38" rx="7" fill="none" stroke="#e6edf3" stroke-width="1.1" opacity="0.85"/>
+<text x="324" y="382" font-size="12.5" font-weight="700" fill="#e6edf3" text-anchor="middle">Continuous scoring 0–100  (services/scoring.py)</text>
+<line x1="324" y1="396" x2="324" y2="412" stroke="#00b4d8" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="120" y="414" width="408" height="38" rx="7" fill="none" stroke="#e6edf3" stroke-width="1.1" opacity="0.85"/>
+<text x="324" y="438" font-size="12.5" font-weight="700" fill="#e6edf3" text-anchor="middle">Fusion   L1·0.30 + L2·0.40 + L3·0.30</text>
+<line x1="324" y1="452" x2="324" y2="468" stroke="#00b4d8" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="40" y="470" width="172" height="48" rx="7" fill="#16a34a1f" stroke="#16a34a" stroke-width="1.4"/>
+<text x="126" y="491" font-size="12.5" font-weight="800" fill="#16a34a" text-anchor="middle">ALLOW · &lt;60</text>
+<text x="126" y="508" font-size="10.5" fill="#e6edf3" opacity="0.7" text-anchor="middle">session proceeds</text>
+<rect x="226" y="470" width="172" height="48" rx="7" fill="#d977061f" stroke="#d97706" stroke-width="1.4"/>
+<text x="312" y="491" font-size="12.5" font-weight="800" fill="#d97706" text-anchor="middle">OTP · 60–79</text>
+<text x="312" y="508" font-size="10.5" fill="#e6edf3" opacity="0.7" text-anchor="middle">step-up re-auth</text>
+<rect x="412" y="470" width="172" height="48" rx="7" fill="#dc26261f" stroke="#dc2626" stroke-width="1.4"/>
+<text x="498" y="491" font-size="12.5" font-weight="800" fill="#dc2626" text-anchor="middle">BLOCK · ≥80</text>
+<text x="498" y="508" font-size="10.5" fill="#e6edf3" opacity="0.7" text-anchor="middle">terminate + alert</text>
+<rect x="648" y="284" width="268" height="90" rx="10" fill="#ffffff" fill-opacity="0.04" stroke="#e6edf3" stroke-width="1.2" stroke-opacity="0.5"/>
+<text x="668" y="310" font-size="13.5" font-weight="700" fill="#e6edf3">SQLite · phantomgrid.db</text>
+<text x="668" y="332" font-size="11.5" fill="#e6edf3" opacity="0.7">user_profiles  (baseline vectors, JSON)</text>
+<text x="668" y="352" font-size="11.5" fill="#e6edf3" opacity="0.7">session_logs  (every /verify writes a row)</text>
+<rect x="648" y="414" width="268" height="104" rx="10" fill="#00b4d814" stroke="#00b4d8" stroke-width="1.5"/>
+<text x="668" y="440" font-size="13.5" font-weight="700" fill="#e6edf3">Analyst Dashboard (Person 3)</text>
+<text x="668" y="462" font-size="11.5" fill="#e6edf3" opacity="0.7">live gauge · L1/L2/L3 bars</text>
+<text x="668" y="481" font-size="11.5" fill="#e6edf3" opacity="0.7">session log · OTP toast · red flash</text>
+<text x="668" y="505" font-size="11.5" font-weight="700" fill="#00b4d8">polls  GET /logs  every 2s</text>
+<line x1="528" y1="433" x2="644" y2="329" stroke="#e6edf3" stroke-width="1.4" opacity="0.45" marker-end="url(#ah)"/>
+<line x1="780" y1="374" x2="780" y2="410" stroke="#00b4d8" stroke-width="1.6" opacity="0.7" marker-end="url(#ah)"/>
+<text x="28" y="556" font-size="11.5" fill="#e6edf3" opacity="0.6">Trust boundary: everything from the browser is untrusted input. The backend never trusts a client-supplied score — it computes all scoring server-side.</text>
+<text x="28" y="576" font-size="11.5" fill="#e6edf3" opacity="0.6">Re-auth on OTP: WebAuthn fingerprint with OTP fallback (handled by the bank's existing auth infra; PhantomGrid only triggers the challenge).</text>
+</svg>

@@ -3,7 +3,8 @@ import json
 from datetime import datetime
 from uuid import uuid4
 
-from fastapi import FastAPI
+from typing import Optional
+from fastapi import FastAPI, Query
 from sqlalchemy import inspect, text
 
 from database import engine
@@ -73,6 +74,48 @@ def _migrate_profile_columns():
 
 _migrate_audit_columns()
 _migrate_profile_columns()
+
+
+def _seed_demo_user():
+    """Pre-enroll demo_user on Railway so the live demo works immediately."""
+    db = SessionLocal()
+    existing = db.query(database_models.UserProfile).filter(
+        database_models.UserProfile.user_id == "demo_user"
+    ).first()
+    if existing:
+        db.close()
+        return
+    samples = [
+        {"decoy_tap_count": 0, "amount_hesitations": 0, "bene_dwell_ms": 600,
+         "amount_iki": [110, 95, 105], "pin_vector": [118, 92, 107, 85, 99]},
+        {"decoy_tap_count": 0, "amount_hesitations": 0, "bene_dwell_ms": 622,
+         "amount_iki": [108, 98, 102], "pin_vector": [122, 88, 110, 82, 102]},
+        {"decoy_tap_count": 0, "amount_hesitations": 1, "bene_dwell_ms": 578,
+         "amount_iki": [115, 92, 108], "pin_vector": [115, 95, 104, 88, 96]},
+        {"decoy_tap_count": 0, "amount_hesitations": 0, "bene_dwell_ms": 611,
+         "amount_iki": [112, 96, 106], "pin_vector": [120, 90, 108, 86, 100]},
+        {"decoy_tap_count": 1, "amount_hesitations": 0, "bene_dwell_ms": 593,
+         "amount_iki": [109, 94, 107], "pin_vector": [116, 93, 105, 87, 98]},
+    ]
+    l1_vecs, l2_vecs, pin_vecs = [], [], []
+    for s in samples:
+        avg_iki = sum(s["amount_iki"]) / len(s["amount_iki"])
+        l1_vecs.append([s["decoy_tap_count"], s["amount_hesitations"]])
+        l2_vecs.append([s["bene_dwell_ms"], avg_iki])
+        pin_vecs.append(s["pin_vector"])
+    profile = database_models.UserProfile(
+        user_id="demo_user",
+        layer1_vectors=json.dumps(l1_vecs),
+        layer2_vectors=json.dumps(l2_vecs),
+        pin_vectors=json.dumps(pin_vecs),
+    )
+    db.add(profile)
+    db.commit()
+    db.close()
+    print("[PhantomGrid] demo_user seeded successfully")
+
+
+_seed_demo_user()
 
 print(
     inspect(engine).get_table_names()
@@ -703,20 +746,14 @@ def audit_verify():
 
 
 @app.get("/logs")
-def get_logs():
+def get_logs(user_id: Optional[str] = Query(default=None)):
 
     db = SessionLocal()
 
-    logs = (
-        db.query(
-            database_models.SessionLog
-        )
-        .order_by(
-            database_models.SessionLog.timestamp.desc()
-        )
-        .limit(10)
-        .all()
-    )
+    q = db.query(database_models.SessionLog)
+    if user_id:
+        q = q.filter(database_models.SessionLog.user_id == user_id)
+    logs = q.order_by(database_models.SessionLog.timestamp.desc()).limit(20).all()
 
     result = []
 

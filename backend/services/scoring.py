@@ -45,12 +45,20 @@ def continuous_if_risk(training_data, point):
     """IsolationForest anomaly gate + normalized-deviation magnitude -> 0–100.
 
     Inliers ramp gently inside 0–45; outliers start at 55 and grow with how far
-    the point sits from the enrolled baseline. Monotonic and smooth."""
+    the point sits from the enrolled baseline. Monotonic and smooth.
+
+    With < 10 samples IF is unreliable (gate can misclassify extreme outliers as
+    inliers, capping the score at 45). Below that threshold we skip the gate and
+    use pure deviation — deterministic, monotonic, and correct."""
+    deviation = _normalized_deviation(point, training_data)
+
+    if len(training_data) < 10:
+        return round(min(100.0, deviation * 30.0), 1)
+
     model = IsolationForest(contamination=0.1, random_state=42)
     model.fit(training_data)
 
     gate = model.decision_function([point])[0]   # >0 normal, <0 anomaly
-    deviation = _normalized_deviation(point, training_data)
 
     if gate >= 0:
         risk = min(45.0, deviation * 22.0)
