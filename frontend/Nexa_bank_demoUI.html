@@ -754,7 +754,13 @@ window.showResult = function(data) {
   window.onRiskResult(data);
 };
 function openResultModal(isBlock, data) {
-  var bd=data.breakdown||{layer1:.1,layer2:.15,layer3:.08}, comp=data.composite_score||.1;
+  // Backend returns layer1_score/layer2_score/layer3_score on 0-100 scale.
+  // bar() expects 0-1 fraction. Divide by 100. Demo buttons pass breakdown.layerN already 0-1.
+  var bd = data.breakdown || {};
+  var l1   = data.layer1_score   != null ? data.layer1_score/100   : (bd.layer1||0);
+  var l2   = data.layer2_score   != null ? data.layer2_score/100   : (bd.layer2||0);
+  var l3   = data.layer3_score   != null ? data.layer3_score/100   : (bd.layer3||0);
+  var comp = data.composite_score != null ? data.composite_score/100 : 0.1;
   var amt=document.getElementById('amount-field').value, bene=selectedBeneIdx>=0?BENES[selectedBeneIdx].name:'—';
   document.getElementById('result-icon').textContent  = isBlock?'🚨':'✅';
   document.getElementById('result-title').textContent = isBlock?'Transaction Blocked':'Payment Authorized';
@@ -762,8 +768,8 @@ function openResultModal(isBlock, data) {
   document.getElementById('result-sub').textContent   = isBlock?'High-risk session detected. Contact your bank.':'₹'+parseFloat(amt||0).toLocaleString('en-IN')+' sent to '+bene+' successfully.';
   document.getElementById('result-txn').textContent   = isBlock?'':'Ref: TXN'+Math.floor(Math.random()*9e11+1e11);
   function bar(id,sid,val){ var pct=Math.round(val*100),c=val>.6?'#ef4444':val>.3?'#f59e0b':'#22c55e'; document.getElementById(id).style.cssText='width:'+pct+'%;background:'+c; document.getElementById(sid).textContent=pct+'%'; document.getElementById(sid).style.color=c; }
-  bar('rb-l1','rb-l1-score',bd.layer1||0); bar('rb-l2','rb-l2-score',bd.layer2||0);
-  bar('rb-l3','rb-l3-score',bd.layer3||0); bar('rb-comp','rb-comp-score',comp);
+  bar('rb-l1','rb-l1-score',l1); bar('rb-l2','rb-l2-score',l2);
+  bar('rb-l3','rb-l3-score',l3); bar('rb-comp','rb-comp-score',comp);
   var badge=document.getElementById('decision-badge');
   badge.textContent=isBlock?'🚨 BLOCKED':'✅ AUTHORIZED'; badge.className='decision-badge '+(isBlock?'block':'allow');
   document.getElementById('result-overlay').classList.add('show');
