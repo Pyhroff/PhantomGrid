@@ -23,7 +23,13 @@ try:
 except Exception:
     BASE_URL = "http://127.0.0.1:8000"
 
-DB = r"C:\Users\LENOVO\OneDrive\Desktop\PhantomGrid\backend\phantomgrid.db"
+import os as _os
+_root = _os.path.dirname(_os.path.abspath(__file__))
+_candidates = [
+    _os.path.join(_root, "phantomgrid.db"),
+    _os.path.join(_root, "backend", "phantomgrid.db"),
+]
+DB = next((p for p in _candidates if _os.path.exists(p) and _os.path.getsize(p) > 100), _candidates[0])
 
 
 def check():
