@@ -226,7 +226,10 @@ function sendToBackend(signalPackage) {
 
       // Re-enable Pay button after enrollment response
       var btn = document.getElementById('pay-btn');
-      if (btn) { btn.disabled = false; btn.textContent = 'Pay'; }
+      var btnTxt = document.getElementById('pay-btn-text');
+      if (btn) btn.disabled = false;
+      if (btnTxt) btnTxt.textContent = 'Pay Now';
+      else if (btn) btn.textContent = 'Pay Now';
       return;
     }
 
