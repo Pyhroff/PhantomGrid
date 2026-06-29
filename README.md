@@ -276,6 +276,8 @@ Application startup complete.
 
 Swagger UI (interactive API docs): `http://127.0.0.1:8000/docs`
 
+> **Live deployment:** `https://phantomgrid-production.up.railway.app/docs`
+
 ### Terminal 2 — Start the Dashboard Server
 
 ```bash
@@ -473,6 +475,8 @@ The demo covers:
 5. Full test suite → `8 passed` against live backend
 
 📹 **[Watch Demo Video](https://drive.google.com/drive/folders/PhantomGrid-Demo)** *(link updated before submission)*
+
+🌐 **Live API:** [https://phantomgrid-production.up.railway.app](https://phantomgrid-production.up.railway.app) · [Swagger UI](https://phantomgrid-production.up.railway.app/docs)
 
 ---
 
