@@ -847,7 +847,14 @@ function demoAmber() {
 (function(){
   updateSummary();
   if (window.location.search.includes('enroll=true')) {
-    var count=parseInt(localStorage.getItem('pg_enroll_count')||'0');
+    // Reset enrollment state completely when ?enroll=true is in URL.
+    // Without this, old pg_enroll_mode="false" in localStorage causes capture.js
+    // to send to /verify instead of /enroll, triggering OTP overlay during training.
+    localStorage.removeItem('pg_enroll_mode');
+    localStorage.setItem('pg_enroll_count', '0');
+    localStorage.removeItem('pg_enrolled');
+
+    var count = 0;
     document.getElementById('enroll-banner').style.display='block';
     document.getElementById('views-wrap').style.top='98px';
     updateEnrollBanner(count);
