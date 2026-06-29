@@ -117,8 +117,10 @@ def _seed_user(user_id: str):
     print(f"[PhantomGrid] {user_id} seeded successfully")
 
 
-# Seed all pre-enrolled demo accounts on startup
-for _uid in ("demo_user", "arjun_4821", "legit_user"):
+# Seed demo_user and legit_user with synthetic baseline for live API testing.
+# arjun_4821 is NOT seeded here — must be enrolled via bank UI (Nexa_bank_demoUI.html?enroll=true)
+# so real PIN rhythm and bene_dwell signals build the actual baseline.
+for _uid in ("demo_user", "legit_user"):
     _seed_user(_uid)
 
 print(
