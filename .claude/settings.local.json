@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import requests; r = requests.get\\('https://api.github.com/users/pyhroff'\\); print\\(r.status_code, r.json\\(\\)\\)\")",
+      "PowerShell($events = Invoke-RestMethod -Uri \"https://api.github.com/users/pyhroff/events\" -Headers @{\"User-Agent\"=\"CHRONO-LEAK\"}; Write-Host \"Total events found: $\\($events.Count\\)\"; $events | Select-Object type, created_at | Format-Table)",
+      "PowerShell($events = Invoke-RestMethod -Uri \"https://api.github.com/users/sparrowspidey/events\" -Headers @{\"User-Agent\"=\"CHRONO-LEAK\"}; Write-Host \"Total events: $\\($events.Count\\)\"; $events | ForEach-Object { [PSCustomObject]@{ Type=$_.type; Time=$_.created_at } } | Format-Table -AutoSize)",
+      "PowerShell(python --version)",
+      "PowerShell(pip --version)",
+      "Bash(git config *)",
+      "Bash(gh auth *)",
+      "PowerShell(gh auth status 2>&1)",
+      "PowerShell($env:PATH += \";C:\\\\Program Files\\\\GitHub CLI\"; cd \"C:\\\\Users\\\\LENOVO\\\\OneDrive\\\\Desktop\\\\BeyondTom\"; git init; git add -A; git commit -m \"Initial commit: DarkDecoder - AI malicious code analyzer\"; gh repo create Pyhroff/darkdecoder --public --source=. --remote=origin --push 2>&1)",
+      "PowerShell(cd \"C:\\\\Users\\\\LENOVO\\\\OneDrive\\\\Desktop\\\\BeyondTom\"; Start-Process powershell -ArgumentList \"-NoExit\", \"-Command\", \"streamlit run app.py\")",
+      "PowerShell($f = \"C:\\\\Users\\\\LENOVO\\\\OneDrive\\\\Desktop\\\\BeyondTom\\\\DarkDecoder_Pitch.pptx\"; if \\(Test-Path $f\\) { $size = \\(Get-Item $f\\).Length; Write-Host \"File exists: $\\([math]::Round\\($size/1KB, 1\\)\\) KB\" } else { Write-Host \"File not found\" })",
+      "Bash(node darkdecoder_v2.js)",
+      "Bash(python -c ' *)",
+      "PowerShell(Start-Process python -ArgumentList \"`\"C:\\\\Users\\\\LENOVO\\\\OneDrive\\\\Desktop\\\\Claude\\\\HackerOS\\\\lock_overlay.py`\" --preview\" -WorkingDirectory \"C:\\\\Users\\\\LENOVO\\\\OneDrive\\\\Desktop\\\\Claude\\\\HackerOS\")",
+      "Bash(dir \"C:\\\\Users\\\\LENOVO\\\\OneDrive\\\\Desktop\\\\Claude\")"
+    ]
+  }
+}
