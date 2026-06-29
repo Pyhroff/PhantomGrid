@@ -321,6 +321,69 @@
   #trend-section .panel-title { margin-bottom: 6px; }
   #trend-chart { width: 100% !important; height: 90px !important; }
 
+  /* ── RBI Compliance Panel ── */
+  #rbi-panel {
+    margin-top: 12px;
+    background: rgba(0,212,255,0.04);
+    border: 1px solid rgba(0,212,255,0.15);
+    border-radius: 6px;
+    padding: 10px 12px;
+    width: 100%;
+  }
+  #rbi-panel .panel-title { margin-bottom: 8px; color: var(--cyan); }
+  .rbi-item {
+    font-size: 10px;
+    color: #4ade80;
+    letter-spacing: 0.04em;
+    padding: 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rbi-item span { color: var(--muted); }
+
+  /* ── Maturity + Audit ── */
+  #maturity-line {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-top: 6px;
+    text-align: center;
+  }
+  #audit-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    margin-top: 4px;
+    text-align: center;
+    color: var(--green);
+  }
+
+  /* ── QR Code ── */
+  #qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  #qr-wrap span {
+    font-size: 9px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ── Heatmap ── */
+  #heatmap-section {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 20px;
+    flex-shrink: 0;
+    height: 120px;
+  }
+  #heatmap-section .panel-title { margin-bottom: 6px; }
+  #heatmap-chart { width: 100% !important; height: 80px !important; }
+
   /* ── Fraud Alert ── */
   #fraud-alert {
     display: none;
@@ -351,7 +414,13 @@
 
 <header>
   <h1>PhantomGrid <span>| ANALYST DASHBOARD |</span> LIVE <span id="live-dot"></span></h1>
-  <span style="color:var(--muted);font-size:11px;letter-spacing:.06em">TEAM ZEROINTENT · PSBs HACKATHON 2026</span>
+  <div id="qr-wrap">
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=72x72&data=https://phantomgrid-production.up.railway.app/docs&color=00d4ff&bgcolor=0d1117&qzone=1"
+         style="border-radius:5px;border:1px solid rgba(0,212,255,0.3);display:block"
+         title="Scan to test the live API" />
+    <span>SCAN · LIVE API</span>
+  </div>
+  <span style="color:var(--muted);font-size:11px;letter-spacing:.06em">TEAM ZEROINTENT · CBI HACKATHON 2026</span>
 </header>
 
 <main>
@@ -363,6 +432,19 @@
       <div id="gauge-value">--</div>
     </div>
     <div id="gauge-label">COMPOSITE / 100</div>
+    <div id="maturity-line">Baseline — / — · connecting…</div>
+    <div id="audit-badge">🛡 AUDIT VERIFIED ✓</div>
+
+    <!-- RBI Compliance Panel -->
+    <div id="rbi-panel">
+      <div class="panel-title">RBI COMPLIANCE STATUS</div>
+      <div class="rbi-item">✅ <span>Risk-based authentication (OTP at 60–79)</span></div>
+      <div class="rbi-item">✅ <span>Continuous session monitoring</span></div>
+      <div class="rbi-item">✅ <span>Tamper-evident audit trail (SHA-256)</span></div>
+      <div class="rbi-item">✅ <span>No PII stored — derived metrics only</span></div>
+      <div class="rbi-item">✅ <span>Data localisation ready (AWS ap-south-1)</span></div>
+      <div class="rbi-item">✅ <span>Explainable per-layer decisions</span></div>
+    </div>
   </div>
 
   <!-- Session Log -->
@@ -429,6 +511,12 @@
 <div id="trend-section">
   <div class="panel-title">Risk Score Trend — Last 20 Sessions</div>
   <canvas id="trend-chart"></canvas>
+</div>
+
+<!-- Heatmap: avg risk by hour of day -->
+<div id="heatmap-section">
+  <div class="panel-title">Attack Pattern Heatmap — Avg Risk by Hour of Day</div>
+  <canvas id="heatmap-chart"></canvas>
 </div>
 
 <!-- Status bar -->
@@ -620,6 +708,67 @@ function updateTrendChart(rows) {
   trendChart.update();
 }
 
+// ── Heatmap: avg risk score by hour of day ─────────────────────────────────
+let heatmapChart = null;
+
+function initHeatmapChart() {
+  const ctx = document.getElementById('heatmap-chart').getContext('2d');
+  const labels = Array.from({length: 24}, (_, i) => i.toString().padStart(2,'0') + ':00');
+  heatmapChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Avg Risk',
+        data: new Array(24).fill(null),
+        backgroundColor: new Array(24).fill('rgba(0,212,255,0.15)'),
+        borderColor:     new Array(24).fill('rgba(0,212,255,0.4)'),
+        borderWidth: 1,
+        borderRadius: 3,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600 },
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: c => `Avg risk: ${c.raw !== null ? Number(c.raw).toFixed(1) : 'no data'}` } }
+      },
+      scales: {
+        x: { ticks: { color:'#8b949e', font:{size:8}, maxRotation:0 }, grid:{ display:false } },
+        y: { min:0, max:100, ticks:{ color:'#8b949e', font:{size:8} }, grid:{ color:'#21262d' } }
+      }
+    }
+  });
+}
+
+function updateHeatmap(rows) {
+  if (!heatmapChart || !rows || !rows.length) return;
+  const buckets = Array.from({length: 24}, () => []);
+  rows.forEach(r => {
+    const h = new Date(r.timestamp).getHours();
+    buckets[h].push(Number(r.composite_score));
+  });
+  const avgs = buckets.map(b => b.length ? (b.reduce((a,v) => a+v, 0) / b.length) : null);
+  const bgColors = avgs.map(v => {
+    if (v === null) return 'rgba(0,212,255,0.08)';
+    if (v >= 80)   return 'rgba(220,38,38,0.5)';
+    if (v >= 60)   return 'rgba(217,119,6,0.5)';
+    return 'rgba(22,163,74,0.4)';
+  });
+  const borderColors = avgs.map(v => {
+    if (v === null) return 'rgba(0,212,255,0.2)';
+    if (v >= 80)   return '#dc2626';
+    if (v >= 60)   return '#d97706';
+    return '#16a34a';
+  });
+  heatmapChart.data.datasets[0].data = avgs;
+  heatmapChart.data.datasets[0].backgroundColor = bgColors;
+  heatmapChart.data.datasets[0].borderColor = borderColors;
+  heatmapChart.update();
+}
+
 // ── Fraud Alert ────────────────────────────────────────────────────────────
 function showFraudAlert(sid) {
   if (lastAlertSid === sid) return;
@@ -697,6 +846,7 @@ async function poll() {
 
     renderSessions(rows);
     updateTrendChart(rows);
+    updateHeatmap(rows);
     refreshAudit();
     refreshMaturity();
 
@@ -726,6 +876,7 @@ document.getElementById('user-input').addEventListener('keydown', e => {
 // ── Init ───────────────────────────────────────────────────────────────────
 drawGauge(0, '#21262d');
 initTrendChart();
+initHeatmapChart();
 
 const initUser = getUrlUser();
 if (initUser) {
