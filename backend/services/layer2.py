@@ -13,7 +13,7 @@ def get_layer2_risk(
     bene_dwell_ms,
     amount_iki
 ):
-    avg_amount_iki = sum(amount_iki) / len(amount_iki)
+    avg_amount_iki = sum(amount_iki) / len(amount_iki) if amount_iki else 0.0
 
     return continuous_if_risk(
         training_data,
