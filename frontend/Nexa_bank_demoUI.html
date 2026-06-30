@@ -669,7 +669,9 @@ function updateSummary() {
 var canvasBars = [], canvasAnim = null;
 function pinKey(digit) {
   if (pinValue.length >= 6) return;
-  var now = Date.now(), interval = lastPinKeyTime !== null ? now - lastPinKeyTime : null;
+  // performance.now() gives sub-ms precision — essential for keystroke dynamics.
+  var now = performance.now();
+  var interval = lastPinKeyTime !== null ? Math.round(now - lastPinKeyTime) : null;
   lastPinKeyTime = now; pinValue += digit;
   window.onPinKey(digit, interval);
   var dot = document.getElementById('pd' + (pinValue.length - 1));
@@ -678,6 +680,15 @@ function pinKey(digit) {
   drawWaveBar(interval);
   if (pinValue.length === 6) setTimeout(function(){ document.getElementById('pin-section').scrollIntoView({behavior:'smooth'}); }, 300);
 }
+// Physical keyboard PIN entry — gives STABLE low-variance timing (~80-150ms) so
+// Layer 3 RhythmLock actually works. Mouse-clicking the numpad adds 300-900ms of
+// travel noise that makes legit and attacker indistinguishable (DTW can't separate).
+// Type your PIN on the keyboard during enrollment AND verification for reliable scoring.
+document.addEventListener('keydown', function(e){
+  if (typeof currentView !== 'undefined' && currentView !== 'payment') return;
+  if (e.key >= '0' && e.key <= '9') { pinKey(e.key); }
+  else if (e.key === 'Backspace') { pinBackspace(); }
+});
 function pinBackspace() {
   if (!pinValue.length) return;
   pinValue = pinValue.slice(0,-1);
