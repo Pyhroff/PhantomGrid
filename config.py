@@ -1,13 +1,13 @@
-# ── PhantomGrid config ────────────────────────────────────────────────────
-# Change BASE_URL to Person 2's ngrok/Railway URL before demo day.
-# Everything else (scripts, tests, dashboard) reads from here.
+# PhantomGrid — Central Configuration
+# All demo scripts, tests, and dashboard read from this file.
+# For local development: BASE_URL = "http://localhost:8000"
+# For Railway deployment: BASE_URL = "https://phantomgrid-production.up.railway.app"
 
-BASE_URL = "http://localhost:8000"   # e.g. "https://abc123.ngrok-free.app"
+BASE_URL = "http://localhost:8000"
 DEMO_USER = "demo_user"
 
-# Your enrolled PIN rhythm baseline (ms between keypresses for a 5-digit PIN).
-# Run enroll.py first — it uses these as the centre of your training distribution.
+# Representative legitimate PIN inter-keystroke intervals (ms) used by demo scripts.
 LEGIT_INTERVALS = [112, 98, 105, 89, 103]
 
-# Attacker rhythm — deliberately divergent, guaranteed Red.
+# Divergent intervals used by demo_attacker.py to simulate an impostor.
 ATTACKER_INTERVALS = [220, 180, 310, 95, 260]
