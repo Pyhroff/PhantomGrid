@@ -183,7 +183,16 @@ function sendToBackend(signalPackage) {
 
   .then(function(result) {
 
-    if (result.error === "User not enrolled") 
+    // Response arrived — clear the bank UI's safety timeout and re-enable the button.
+    if (window.pgPayDone) window.pgPayDone();
+    (function(){
+      var b = document.getElementById('pay-btn'),
+          t = document.getElementById('pay-btn-text');
+      if (b) b.disabled = false;
+      if (t) t.textContent = '💸 Confirm & Pay';
+    })();
+
+    if (result.error === "User not enrolled")
     {
 
       console.warn("[PhantomGrid] Backend has no enrollment data.");
@@ -243,7 +252,9 @@ function sendToBackend(signalPackage) {
 
     // Re-enable Pay button before showing result modal
     var btn = document.getElementById('pay-btn');
-    if (btn) { btn.disabled = false; btn.textContent = 'Pay'; }
+    if (btn) btn.disabled = false;
+    var bt = document.getElementById('pay-btn-text');
+    if (bt) bt.textContent = '💸 Confirm & Pay';
 
     handleBackendResult(result);
 
@@ -251,11 +262,12 @@ function sendToBackend(signalPackage) {
 
   .catch(function(err) {
     // Always re-enable the Pay button so user isn't stuck on "Processing..."
+    if (window.pgPayDone) window.pgPayDone();
     var btn = document.getElementById('pay-btn');
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'Pay';
-    }
+    var bt2 = document.getElementById('pay-btn-text');
+    if (btn) btn.disabled = false;
+    if (bt2) bt2.textContent = '💸 Confirm & Pay';
+    if (window.showToast) window.showToast('Backend unreachable — check it is running on :8000','error');
     console.error('[PhantomGrid]', err);
 
   });
