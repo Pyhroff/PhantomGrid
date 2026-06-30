@@ -818,6 +818,9 @@ function closeResult() {
   var btn=document.getElementById('pay-btn'); btn.disabled=false;
   document.getElementById('pay-btn-text').textContent='💸 Confirm & Pay';
   setRiskBadge('green','Secure');
+  // Clear the entered details so the NEXT demo transaction starts fresh.
+  var amt=document.getElementById('amount-field'); if(amt) amt.value='';
+  updateSummary();
 }
 
 // ── RISK BADGE ──
@@ -883,12 +886,21 @@ function demoAmber() {
 (function(){
   updateSummary();
   if (window.location.search.includes('enroll=true')) {
+    // If enrollment is ALREADY complete, do NOT restart training on reload —
+    // stay in live verification mode so the demo can run repeatedly.
+    if (localStorage.getItem('pg_enrolled') === 'true') {
+      localStorage.setItem('pg_enroll_mode', 'false');   // ensure verify mode
+      document.getElementById('enroll-banner').style.display = 'none';
+      document.getElementById('views-wrap').style.top = '62px';
+      return;
+    }
+
     var c        = parseInt(localStorage.getItem('pg_enroll_count') || '0');
     var modeOff  = localStorage.getItem('pg_enroll_mode') === 'false';
     // Mid-enrollment = you've done 1-4 sessions and haven't completed. Preserve progress on refresh.
     var midEnroll = c > 0 && c < 5 && !modeOff;
 
-    localStorage.removeItem('pg_enroll_mode'); // always force enroll mode ON for ?enroll=true
+    localStorage.removeItem('pg_enroll_mode'); // force enroll mode ON only when NOT yet enrolled
 
     if (!midEnroll) {
       // Fresh start (count 0, or a previous enrollment was completed):
