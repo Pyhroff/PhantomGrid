@@ -686,6 +686,10 @@ function pinKey(digit) {
 // Type your PIN on the keyboard during enrollment AND verification for reliable scoring.
 document.addEventListener('keydown', function(e){
   if (typeof currentView !== 'undefined' && currentView !== 'payment') return;
+  // Critical: do NOT capture digits while typing in a text field (the amount field).
+  // Otherwise typing "100" for the amount pre-fills 3 PIN dots and corrupts pinValue.
+  var ae = document.activeElement;
+  if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
   if (e.key >= '0' && e.key <= '9') { pinKey(e.key); }
   else if (e.key === 'Backspace') { pinBackspace(); }
 });
@@ -725,6 +729,10 @@ function animateCanvas() {
 }
 
 // ── PAY SUBMIT ──
+// Clears the safety timeout once a response (success or error) is handled by capture.js.
+window.pgPayDone = function(){
+  if (window._payTimeout) { clearTimeout(window._payTimeout); window._payTimeout = null; }
+};
 function handlePaySubmit() {
   if (selectedBeneIdx < 0) { window.showToast('Select a beneficiary','error'); return; }
   var amt = document.getElementById('amount-field').value;
@@ -732,9 +740,26 @@ function handlePaySubmit() {
   if (pinValue.length < 6) { window.showToast('Enter your 6-digit PIN','error'); return; }
   var btn = document.getElementById('pay-btn');
   btn.disabled = true; document.getElementById('pay-btn-text').textContent = '⏳ Processing…';
-  var count = parseInt(localStorage.getItem('pg_enroll_count')||'0') + 1;
-  localStorage.setItem('pg_enroll_count', count);
-  updateEnrollBanner(count);
+
+  // Safety net: never let the button stay stuck on "Processing" if the backend
+  // doesn't respond (e.g. backend not running). Re-enable after 8s with a clear error.
+  if (window._payTimeout) clearTimeout(window._payTimeout);
+  window._payTimeout = setTimeout(function(){
+    btn.disabled = false;
+    document.getElementById('pay-btn-text').textContent = '💸 Confirm & Pay';
+    window.showToast('No response — is the backend running on :8000?','error');
+  }, 8000);
+
+  // Only advance the enrollment counter while actually enrolling (mode not yet 'false').
+  // Prevents the banner counting past 5 during live verification.
+  var enrolling = window.location.search.includes('enroll=true')
+               && localStorage.getItem('pg_enroll_mode') !== 'false';
+  if (enrolling) {
+    var count = Math.min(5, parseInt(localStorage.getItem('pg_enroll_count')||'0') + 1);
+    localStorage.setItem('pg_enroll_count', count);
+    updateEnrollBanner(count);
+  }
+
   window.onPaySubmit({ userId:'arjun_4821', beneficiary:BENES[selectedBeneIdx], amount:parseFloat(amt), pin:pinValue });
 }
 
