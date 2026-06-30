@@ -5,4 +5,7 @@ sqlalchemy==2.0.30
 pydantic==2.7.1
 dtaidistance==2.3.12
 requests==2.32.3
-psycopg2-binary==2.9.9
+pytest==8.2.2
+matplotlib==3.8.4
+numpy==1.26.4
+fpdf2==2.7.9

@@ -1,0 +1,24 @@
+PhantomGrid — CBI Hackathon 2026 Phase II Submission
+Team ZeroIntent | S.No. 8 | IIIT Kottayam
+=====================================================
+
+Private GitHub Repository (shared with CBIHack26):
+  https://github.com/Pyhroff/PhantomGrid
+
+Live Deployment URL:
+  https://phantomgrid-production.up.railway.app
+
+Swagger API Docs (interactive testing, no setup required):
+  https://phantomgrid-production.up.railway.app/docs
+
+Test Credentials:
+  Primary demo user : demo_user
+  See TEST_CREDENTIALS.md for full curl examples, Swagger walkthrough,
+  and pre-built ALLOW and BLOCK payloads.
+
+Team:
+  Madapati Jyoti Radithya    — Frontend Development, Behavioural Signal Capture
+  Kontheti Sai Akhilesh      — Backend Development, ML Engine, FastAPI
+  Praising Y Harris Ratnam   — Analyst Dashboard, Integration Tests, Threat Model, Documentation
+
+Institution: Indian Institute of Information Technology Kottayam

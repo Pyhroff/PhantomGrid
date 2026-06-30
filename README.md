@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/DTW-dtaidistance-purple" />
   <img src="https://img.shields.io/badge/SQLite-Audit--Chained-lightgrey" />
   <img src="https://img.shields.io/badge/Tests-8%2F8%20passing-brightgreen" />
-  <img src="https://img.shields.io/badge/Detection-96.7%25-red" />
+  <img src="https://img.shields.io/badge/Detection-95.3%25-red" />
 </p>
 
 > **CBI Hackathon 2026 — Phase II Submission**
@@ -51,7 +51,7 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
                               │  POST /enroll | POST /verify
                               ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                 FastAPI Backend (Person 2 + Person 3)            │
+│                 FastAPI Backend — ML Inference Engine            │
 │                                                                  │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
 │  │  Layer 1        │  │  Layer 2        │  │  Layer 3        │  │
@@ -76,7 +76,7 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
                                │  GET /logs (polls every 2s)
                                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│              Analyst Dashboard (Person 3)                        │
+│              Analyst Dashboard — Real-Time Monitoring                        │
 │  Live gauge · Layer bars · WHY THIS DECISION panel              │
 │  OTP toast · BLOCK alert + beep · 🛡 Audit verified badge       │
 │  Baseline maturity indicator · Session log table                 │
@@ -154,11 +154,11 @@ Every ALLOW session is appended to the user's baseline (sliding window of 20). T
 
 ## Performance Benchmark
 
-Validated on a 200-session synthetic cohort (100 legit, 100 attacker):
+Validated on a 300-session synthetic cohort (150 legit, 150 attacker):
 
 | Metric | Result |
 |--------|--------|
-| Detection Rate (TPR) | **96.7%** |
+| Detection Rate (TPR) | **95.3%** |
 | False Positive Rate | **0.0%** |
 | AUC (ROC) | **1.00** |
 
@@ -179,19 +179,19 @@ PhantomGrid/
 │   ├── database_models.py       # ORM models: UserProfile, SessionLog
 │   ├── schemas.py               # Pydantic request/response models
 │   └── services/
-│       ├── scoring.py           # Continuous scoring engine (Person 3)
-│       ├── audit.py             # Replay defence + hash chain (Person 3)
+│       ├── scoring.py           # Continuous scoring engine
+│       ├── audit.py             # Replay defence + hash chain
 │       ├── fusion.py            # Weighted fusion + ALLOW/OTP/BLOCK
 │       ├── layer1.py            # CognitiveTrap scorer
 │       ├── layer2.py            # IntentTrace scorer
 │       └── layer3.py            # RhythmLock DTW scorer
 │
 ├── frontend/
-│   ├── Nexa_bank_demoUI.html    # NexaBank portal UI (Person 1)
+│   ├── Nexa_bank_demoUI.html    # NexaBank banking portal UI
 │   └── capture.js               # Behavioural signal capture hooks
 │
 ├── dashboard/
-│   └── index.html               # Live analyst dashboard (Person 3)
+│   └── index.html               # Live analyst dashboard
 │
 ├── tests/
 │   ├── conftest.py              # Fixtures: fresh_user, enroll_user, verify
@@ -204,7 +204,7 @@ PhantomGrid/
 ├── demo_attacker.py             # Guaranteed BLOCK demo script
 ├── demo_replay.py               # Replay attack demonstration
 ├── verify_audit.py              # Tamper-evident audit demonstration
-├── benchmark.py                 # 200-session ROC/AUC benchmark
+├── benchmark.py                 # 300-session ROC/AUC benchmark
 ├── benchmark_report.html        # Benchmark visualisation
 ├── config.py                    # Central configuration
 ├── architecture.svg             # System architecture diagram
@@ -249,7 +249,7 @@ python -c "import fastapi, sklearn, dtaidistance, sqlalchemy; print('All depende
 All configuration lives in `config.py`:
 
 ```python
-BASE_URL   = "http://127.0.0.1:8000"   # Change to ngrok/Railway URL for remote demo
+BASE_URL   = "http://127.0.0.1:8000"   # Change to Railway URL for remote demo
 DEMO_USER  = "demo_user"
 ALLOW_MAX  = 60                          # composite < 60  → ALLOW
 BLOCK_MIN  = 80                          # composite ≥ 80  → BLOCK
@@ -350,7 +350,7 @@ python demo_replay.py
 # Demonstrate tamper-evident audit chain
 python verify_audit.py --tamper
 
-# Run 200-session benchmark → regenerate ROC curve + confusion matrix
+# Run 300-session benchmark → regenerate ROC curve + confusion matrix
 python benchmark.py
 ```
 
@@ -465,16 +465,13 @@ No generative AI (LLMs, diffusion models, etc.) is used. All ML is classical/sta
 
 ## Demo Video
 
-> **5-minute live walkthrough** — single continuous take, no editing.
+The demo video (`Demo Video PhantomGrid.mp4`) is included in this submission ZIP. It demonstrates:
 
-The demo covers:
-1. Live legitimate session → dashboard scores **ALLOW** (composite ~2)
-2. Attacker with correct PIN → gauge slams to 100 → **BLOCK** alert fires
-3. Replay attack defence (`demo_replay.py`) → duplicate payload → **BLOCK**
-4. Tamper-evident audit chain (`verify_audit.py --tamper`) → edit detected instantly
-5. Full test suite → `8 passed` against live backend
-
-📹 **[Watch Demo Video](https://drive.google.com/drive/folders/PhantomGrid-Demo)** *(link updated before submission)*
+1. Live legitimate session — dashboard scores **ALLOW** (composite ~2)
+2. Attacker with correct credentials — gauge reaches 100 — **BLOCK** fires
+3. Replay attack defence — duplicate payload detected, forced **BLOCK**
+4. Tamper-evident audit chain — single row edit detected, chain invalidated
+5. Full integration test suite — **8/8 passed** against live backend
 
 🌐 **Live API:** [https://phantomgrid-production.up.railway.app](https://phantomgrid-production.up.railway.app) · [Swagger UI](https://phantomgrid-production.up.railway.app/docs)
 
@@ -486,9 +483,9 @@ The demo covers:
 |--------|-------|
 | PSB account holders at risk | 600M+ |
 | Annual digital fraud loss (PSBs) | ₹7,400 crore |
-| PhantomGrid detection rate | **96.7%** |
+| PhantomGrid detection rate | **95.3%** |
 | False positive rate | **0.0%** |
-| Estimated fraud prevented (at 96.7% detection) | ~₹7,150 crore/year |
+| Estimated fraud prevented (at 95.3% detection) | ~₹7,050 crore/year |
 | Extra friction added for legitimate users | **Zero** |
 | Infrastructure cost to deploy | **Zero** (JS snippet + API server) |
 | Time to integrate into existing banking portal | **< 1 day** |
