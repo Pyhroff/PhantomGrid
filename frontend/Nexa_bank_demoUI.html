@@ -883,13 +883,26 @@ function demoAmber() {
 (function(){
   updateSummary();
   if (window.location.search.includes('enroll=true')) {
-    var prevCompleted = localStorage.getItem('pg_enrolled') === 'true'
-                     || localStorage.getItem('pg_enroll_mode') === 'false';
-    localStorage.removeItem('pg_enroll_mode');
-    if (prevCompleted) {
+    var c        = parseInt(localStorage.getItem('pg_enroll_count') || '0');
+    var modeOff  = localStorage.getItem('pg_enroll_mode') === 'false';
+    // Mid-enrollment = you've done 1-4 sessions and haven't completed. Preserve progress on refresh.
+    var midEnroll = c > 0 && c < 5 && !modeOff;
+
+    localStorage.removeItem('pg_enroll_mode'); // always force enroll mode ON for ?enroll=true
+
+    if (!midEnroll) {
+      // Fresh start (count 0, or a previous enrollment was completed):
+      // reset the counter AND wipe arjun_4821's old baseline on the backend,
+      // so /enroll doesn't immediately say "already complete".
       localStorage.setItem('pg_enroll_count', '0');
       localStorage.removeItem('pg_enrolled');
+      try {
+        fetch('http://localhost:8000/reset_user?user_id=arjun_4821', { method: 'POST' })
+          .then(function(){ console.log('[PhantomGrid] arjun_4821 baseline reset for fresh enrollment'); })
+          .catch(function(){});
+      } catch(e) {}
     }
+
     var count = parseInt(localStorage.getItem('pg_enroll_count') || '0');
     document.getElementById('enroll-banner').style.display='block';
     document.getElementById('views-wrap').style.top='98px';

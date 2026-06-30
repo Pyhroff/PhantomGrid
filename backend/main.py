@@ -127,6 +127,23 @@ print(
     inspect(engine).get_table_names()
 )
    
+@app.post("/reset_user")
+def reset_user(user_id: str = Query(...)):
+    """Delete a user's enrollment profile so they can re-enroll from scratch.
+    Called by the bank UI when starting a fresh ?enroll=true session."""
+    db = SessionLocal()
+    profile = db.query(database_models.UserProfile).filter(
+        database_models.UserProfile.user_id == user_id
+    ).first()
+    deleted = False
+    if profile:
+        db.delete(profile)
+        db.commit()
+        deleted = True
+    db.close()
+    return {"user_id": user_id, "reset": deleted}
+
+
 #Enrollment Endpoint
 @app.post("/enroll")
 def enroll(
@@ -135,9 +152,10 @@ def enroll(
 
     db = SessionLocal()
 
+    # Guard against empty amount_iki (e.g. a 1-digit amount produces no intervals).
     avg_amount_iki = (
-        sum(data.amount_iki)
-        / len(data.amount_iki)
+        sum(data.amount_iki) / len(data.amount_iki)
+        if data.amount_iki else 0.0
     )
 
     layer1_vector = [
@@ -302,9 +320,10 @@ def verify(
         }
 
     # Current Layer 2 feature
+    # Guard against empty amount_iki (e.g. a 1-digit amount produces no intervals).
     avg_amount_iki = (
-        sum(data.amount_iki)
-        / len(data.amount_iki)
+        sum(data.amount_iki) / len(data.amount_iki)
+        if data.amount_iki else 0.0
     )
 
     # --------------------
