@@ -309,6 +309,18 @@
     transition: opacity 0.2s;
   }
   #connect-btn:hover { opacity: 0.85; }
+  #all-btn {
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid var(--cyan);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  #all-btn:hover { background: var(--cyan); color: #0d1117; }
 
   /* ── Trend Chart ── */
   #trend-section {
@@ -528,7 +540,8 @@
   <div id="user-controls">
     <span style="color:var(--muted);font-size:11px">User:</span>
     <input id="user-input" type="text" placeholder="filter by user (optional)" />
-    <button id="connect-btn">Connect</button>
+    <button id="connect-btn">Filter</button>
+    <button id="all-btn" title="Show every session from every user (recommended for demo)">Show All</button>
   </div>
 </div>
 
@@ -873,6 +886,11 @@ document.getElementById('connect-btn').addEventListener('click', () => {
 });
 document.getElementById('user-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') startPolling(e.target.value);
+});
+// Show All: clears the filter and shows every session from every user
+document.getElementById('all-btn').addEventListener('click', () => {
+  document.getElementById('user-input').value = '';
+  startPolling('');
 });
 
 // ── Init ───────────────────────────────────────────────────────────────────

@@ -140,6 +140,10 @@
     console.log(JSON.stringify(signalPackage, null, 2));
 
     sendToBackend(signalPackage);
+
+    // Clear buffers immediately so the NEXT session starts clean.
+    // The package above is already built & sent; the response doesn't need the buffers.
+    resetSession();
   };
 
 
@@ -413,24 +417,20 @@ function sendToBackend(signalPackage) {
   // ═══════════════════════════════════════════
   // SESSION RESET
   // ═══════════════════════════════════════════
-  function resetSession() 
+  function resetSession()
   {
+    // Clears all per-session capture buffers. MUST run after every payment submit
+    // so the next session starts clean — otherwise pin_vector/decoy/iki arrays
+    // accumulate across sessions and corrupt the baseline.
+    // NOTE: does NOT touch localStorage (enroll-mode is managed by the bank UI init).
     decoyTaps = [];
     beneDwellData = [];
     amountIKI = [];
-
     lastAmountKeyTime = null;
-
     pinIKIVector = [];
     pinDigits = [];
-
-    webAuthnAttempts = 0;
-
     pendingResult = null;
-
-    localStorage.removeItem("pg_enroll_mode");
-
-    console.log('[PhantomGrid] Session reset');
+    console.log('[PhantomGrid] Session buffers reset');
   }
   window.pgResetSession = resetSession;
 
