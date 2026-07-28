@@ -44,7 +44,7 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│           Browser — NexaBank Portal (Madapati Jyoti Radithya)    │
+│           Browser — NexaBank Portal (Madapati Jyothiradithya)    │
 │  capture.js: onDecoyTap · onBeneDwell · onAmountKey · onPinKey   │
 │  Sends ONE behavioural JSON package per transaction              │
 └─────────────────────────────┬────────────────────────────────────┘
@@ -76,9 +76,9 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
                                │  GET /logs (polls every 2s)
                                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│              Analyst Dashboard — Real-Time Monitoring                        │
-│  Live gauge · Layer bars · WHY THIS DECISION panel              │
-│  OTP toast · BLOCK alert + beep · 🛡 Audit verified badge       │
+│              Analyst Dashboard — Real-Time Monitoring             │
+│  Live gauge · Layer bars · WHY THIS DECISION panel               │
+│  OTP toast · BLOCK alert + beep · 🛡 Audit verified badge       |
 │  Baseline maturity indicator · Session log table                 │
 └──────────────────────────────────────────────────────────────────┘
 ```
@@ -498,7 +498,7 @@ PhantomGrid catches account takeovers **before money moves** — not after the t
 
 | Role | Name | Institute |
 |------|------|-----------|
-| Frontend — Behavioural Signal Capture | **Madapati Jyoti Radithya** | IIIT Kottayam |
+| Frontend — Behavioural Signal Capture | **Madapati Jyothiradithya** | IIIT Kottayam |
 | Backend — ML Engine + FastAPI | **Kontheti Sai Akhilesh** | IIIT Kottayam |
 | Dashboard + Tests + Threat Model + Security (Lead) | **Praising Y Harris Ratnam** | IIIT Kottayam |
 
