@@ -276,8 +276,6 @@ Application startup complete.
 
 Swagger UI (interactive API docs): `http://127.0.0.1:8000/docs`
 
-> **Live deployment:** `https://phantomgrid-production.up.railway.app/docs`
-
 ### Terminal 2 — Start the Dashboard Server
 
 ```bash
@@ -473,7 +471,7 @@ The demo video (`Demo Video PhantomGrid.mp4`) is included in this submission ZIP
 4. Tamper-evident audit chain — single row edit detected, chain invalidated
 5. Full integration test suite — **8/8 passed** against live backend
 
-🌐 **Live API:** [https://phantomgrid-production.up.railway.app](https://phantomgrid-production.up.railway.app) · [Swagger UI](https://phantomgrid-production.up.railway.app/docs)
+🌐 **Run locally:** `uvicorn main:app --host 127.0.0.1 --port 8000` from `backend/`, then [Swagger UI](http://127.0.0.1:8000/docs)
 
 ---
 

@@ -5,10 +5,11 @@ Team ZeroIntent | S.No. 8 | IIIT Kottayam
 Private GitHub Repository (shared with CBIHack26):
   https://github.com/Pyhroff/PhantomGrid
 
-Live Deployment URL:
+Live Deployment URL (at time of submission — no longer running):
   https://phantomgrid-production.up.railway.app
 
-Swagger API Docs (interactive testing, no setup required):
+Swagger API Docs (was interactive testing, no setup required — now run
+locally instead, see TEST_CREDENTIALS.md):
   https://phantomgrid-production.up.railway.app/docs
 
 Test Credentials:

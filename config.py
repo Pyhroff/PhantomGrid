@@ -1,7 +1,6 @@
 # PhantomGrid — Central Configuration
 # All demo scripts, tests, and dashboard read from this file.
-# For local development: BASE_URL = "http://localhost:8000"
-# For Railway deployment: BASE_URL = "https://phantomgrid-production.up.railway.app"
+# Local-only — the hackathon's Railway deployment is no longer running.
 
 BASE_URL = "http://localhost:8000"
 DEMO_USER = "demo_user"

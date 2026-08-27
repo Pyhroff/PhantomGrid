@@ -2,18 +2,31 @@
 
 **CBI Hackathon 2026 | Team ZeroIntent | S.No. 8**
 
-All users below are **pre-enrolled** on the live Railway deployment with a synthetic legitimate baseline. No setup required — call `/verify` directly.
+The hackathon's live Railway deployment is no longer running. Everything
+below works the same way against a local instance — no cloud dependency,
+no setup beyond installing requirements and starting the server.
 
 ---
 
-## Live API Base URL
+## Run It Locally
+
+```bash
+pip install -r requirements.txt
+cd backend
+uvicorn main:app --host 127.0.0.1 --port 8000
 ```
-https://phantomgrid-production.up.railway.app
+
+Base URL for everything below:
+```
+http://127.0.0.1:8000
 ```
 Swagger UI (interactive testing):
 ```
-https://phantomgrid-production.up.railway.app/docs
+http://127.0.0.1:8000/docs
 ```
+
+All three test users below are seeded on backend startup with 5 enrollment
+samples each — no manual setup needed once the server is running.
 
 ---
 
@@ -25,14 +38,12 @@ https://phantomgrid-production.up.railway.app/docs
 | `arjun_4821` | Bank UI account | NexaBank portal (local only) |
 | `legit_user` | Secondary demo account | API testing, dashboard filter |
 
-All three are seeded on backend startup with 5 enrollment samples each.
-
 ---
 
-## How to Test the Live API (No Setup Needed)
+## How to Test the API
 
-### Option 1 — Swagger UI (Recommended for Judges)
-1. Open: `https://phantomgrid-production.up.railway.app/docs`
+### Option 1 — Swagger UI (Recommended)
+1. Open: `http://127.0.0.1:8000/docs`
 2. Click `POST /verify` → **Try it out**
 3. Paste this body for a **LEGITIMATE session** (should return ALLOW):
 ```json
@@ -73,18 +84,18 @@ Expected: `"decision": "BLOCK"`, `"composite_score"` near 100.
 ### Option 3 — curl
 ```bash
 # Legitimate session
-curl -X POST https://phantomgrid-production.up.railway.app/verify \
+curl -X POST http://127.0.0.1:8000/verify \
   -H "Content-Type: application/json" \
   -d '{"user_id":"demo_user","decoy_tap_count":0,"amount_hesitations":0,"bene_dwell_ms":605,"amount_iki":[112,96,103],"pin_vector":[119,91,108,84,100]}'
 
 # Check session log
-curl https://phantomgrid-production.up.railway.app/logs?user_id=demo_user
+curl http://127.0.0.1:8000/logs?user_id=demo_user
 
 # Check baseline maturity
-curl https://phantomgrid-production.up.railway.app/maturity?user_id=demo_user
+curl http://127.0.0.1:8000/maturity?user_id=demo_user
 
 # Verify audit chain integrity
-curl https://phantomgrid-production.up.railway.app/audit/verify
+curl http://127.0.0.1:8000/audit/verify
 ```
 
 ---
