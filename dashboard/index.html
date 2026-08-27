@@ -426,12 +426,6 @@
 
 <header>
   <h1>PhantomGrid <span>| ANALYST DASHBOARD |</span> LIVE <span id="live-dot"></span></h1>
-  <div id="qr-wrap">
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=72x72&data=https://phantomgrid-production.up.railway.app/docs&color=00d4ff&bgcolor=0d1117&qzone=1"
-         style="border-radius:5px;border:1px solid rgba(0,212,255,0.3);display:block"
-         title="Scan to test the live API" />
-    <span>SCAN · LIVE API</span>
-  </div>
   <span style="color:var(--muted);font-size:11px;letter-spacing:.06em">TEAM ZEROINTENT · CBI HACKATHON 2026</span>
 </header>
 
@@ -547,10 +541,8 @@
 
 <script>
 // ── Config ─────────────────────────────────────────────────────────────────
-// Auto-detect: use Railway in production, localhost for local dev
-const BASE = window.location.hostname === 'localhost' || window.location.protocol === 'file:'
-  ? 'http://localhost:8000'
-  : 'https://phantomgrid-production.up.railway.app';
+// Local-only now — the hackathon's Railway deployment is no longer running.
+const BASE = 'http://localhost:8000';
 
 // ── State ──────────────────────────────────────────────────────────────────
 let currentUser   = '';

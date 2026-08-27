@@ -5,3 +5,4 @@ __pycache__/
 phantomgrid.db
 *.db
 .DS_Store
+.claude/
