@@ -494,8 +494,8 @@ PhantomGrid catches account takeovers **before money moves** — not after the t
 
 ## Team
 
-| Role | Name | Institute |
-|------|------|-----------|
+| Role | Name | Institute | GitHub |
+|------|------|-----------|--------|
 | Frontend — Behavioural Signal Capture | **Madapati Jyothiradithya** | IIIT Kottayam |[GitHub](https://github.com/Adithya9x) |
 | Backend — ML Engine + FastAPI | **Kontheti Sai Akhilesh** | IIIT Kottayam |[GitHub](https://github.com/SaiAkhilesh026) |
 | Dashboard + Tests + Threat Model + Security (Lead) | **Praising Y Harris Ratnam** | IIIT Kottayam |[GitHub](https://github.com/Pyhroff) |
