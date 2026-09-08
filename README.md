@@ -53,17 +53,17 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
 ┌──────────────────────────────────────────────────────────────────┐
 │                 FastAPI Backend — ML Inference Engine            │
 │                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  │
-│  │  Layer 1        │  │  Layer 2        │  │  Layer 3        │  │
-│  │  CognitiveTrap  │  │  IntentTrace    │  │  RhythmLock     │  │
-│  │  Isolation      │  │  Isolation      │  │  Dynamic Time   │  │
-│  │  Forest + Dev   │  │  Forest + Dev   │  │  Warping (DTW)  │  │
-│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐   │
+│  │  Layer 1        │  │  Layer 2        │  │  Layer 3        │   │
+│  │  CognitiveTrap  │  │  IntentTrace    │  │  RhythmLock     │   │
+│  │  Isolation      │  │  Isolation      │  │  Dynamic Time   │   │
+│  │  Forest + Dev   │  │  Forest + Dev   │  │  Warping (DTW)  │   │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘   │
 │           │                   │                     │            │
 │           └───────────────────┼─────────────────────┘            │
 │                               ▼                                  │
 │                  Composite Fusion Engine                         │
-│                  L1×0.30 + L2×0.40 + L3×0.30                    │
+│                  L1×0.30 + L2×0.40 + L3×0.30                     │
 │                               │                                  │
 │              ┌────────────────┼────────────────┐                 │
 │              ▼                ▼                ▼                 │
@@ -76,9 +76,9 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
                                │  GET /logs (polls every 2s)
                                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│              Analyst Dashboard — Real-Time Monitoring             │
+│              Analyst Dashboard — Real-Time Monitoring            │
 │  Live gauge · Layer bars · WHY THIS DECISION panel               │
-│  OTP toast · BLOCK alert + beep · 🛡 Audit verified badge       |
+│  OTP toast · BLOCK alert + beep · 🛡 Audit verified badge        |
 │  Baseline maturity indicator · Session log table                 │
 └──────────────────────────────────────────────────────────────────┘
 ```
