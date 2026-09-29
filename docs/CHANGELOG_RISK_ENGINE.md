@@ -70,7 +70,7 @@ Scores now gradate smoothly instead of snapping to 10/40/70/95.
 dropped a subsequent attacker on the SAME user from BLOCK (85.0) down to OTP (77.5).
 **After:** the attacker still scores 100 → BLOCK even after a legit session. The demo is
 now order-independent for a strong attacker. (Sustained/gradual poisoning over many
-sessions is still a residual risk — see `threat_model/THREAT_MODEL.md` §5.)
+sessions is still a residual risk — see `THREAT_MODEL.md` §5.)
 
 ---
 
