@@ -169,7 +169,7 @@ Generates 100+ legit & 100+ attacker sessions, runs them through the engine, and
 **detection rate, false-positive rate, accuracy, ROC AUC, confusion matrix, ROC curve** —
 turning the proposal's claims into **measured evidence**.
 
-### 5.3 Threat model (`threat_model/THREAT_MODEL.md`)
+### 5.3 Threat model (`THREAT_MODEL.md`)
 STRIDE table (6 threats × attack × mitigation), a **Data-Flow Diagram with trust
 boundaries**, a **risk matrix** (likelihood × impact), two **attack trees**, residual risks,
 and an RBI/DPDP **compliance** note.
@@ -180,7 +180,7 @@ fusion math, validation (422), and `/logs` persistence. **8/8 pass.**
 
 ### 5.5 Demo tooling
 `demo_attacker.py` (→ guaranteed BLOCK), `demo_legit.py` (→ guaranteed ALLOW),
-`DEMO_RUNBOOK.md` (stage script), `OPERATOR_GUIDE.md` (how to run everything),
+`OPERATOR_GUIDE.md` (how to run everything),
 `architecture.svg` (this diagram).
 
 ### 5.6 Risk-engine upgrade (`CHANGELOG_RISK_ENGINE.md`)

@@ -6,3 +6,18 @@ phantomgrid.db
 *.db
 .DS_Store
 .claude/
+
+# Local-only material (presentations, generated PDFs, presenter notes)
+DEMO_*.md
+JUDGE_QA_*.md
+*.pdf
+*.pptx
+gen*.py
+SUBMISSION_INFO.txt
+benchmark_report.html
+NexaBank*.html
+CLAUDE.md
+AGENTS.md
+.claude/
+Source_code/
+*.db

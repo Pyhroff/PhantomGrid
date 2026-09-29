@@ -1,4 +1,4 @@
-# PhantomGrid — AI-Driven Passive Behavioural Authentication Engine
+# PhantomGrid - AI-Driven Passive Behavioural Authentication Engine
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/Pyhroff/PhantomGrid/master/architecture.svg" width="720" alt="PhantomGrid Architecture"/>
@@ -14,28 +14,28 @@
   <img src="https://img.shields.io/badge/Detection-95.3%25-red" />
 </p>
 
-> **CBI Hackathon 2026 — Phase II Submission**
+> **CBI Hackathon 2026 - Phase II Submission**
 > Team: **ZeroIntent** · S.No: **8** · Indian Institute of Information Technology Kottayam
 
 ---
 
 ## What Is PhantomGrid?
 
-PhantomGrid is a three-layer **passive behavioural authentication engine** that runs silently beneath a banking portal. It authenticates users **continuously** — not just at login — by watching *how* they interact rather than *what* they know.
+PhantomGrid is a three-layer **passive behavioural authentication engine** that runs silently beneath a banking portal. It authenticates users **continuously** - not just at login - by watching *how* they interact rather than *what* they know.
 
-An attacker with stolen credentials, a cloned OTP, and even the correct PIN **still cannot get in** — because their behavioural fingerprint is wrong.
+An attacker with stolen credentials, a cloned OTP, and even the correct PIN **still cannot get in** - because their behavioural fingerprint is wrong.
 
-> **The killer insight:** You can steal a password. You cannot steal a rhythm.
+Passwords and OTPs can be stolen. Typing and interaction rhythm is much harder to replicate.
 
 ### Core Properties
 
 | Property | Detail |
 |----------|--------|
-| **Passive** | Zero friction — users do nothing extra |
+| **Passive** | Zero friction - users do nothing extra |
 | **Continuous** | Every session scored end-to-end, not just at login |
 | **Explainable** | Per-layer risk breakdown shown to the analyst |
-| **Tamper-evident** | SHA-256 hash-chained audit log — RBI-grade |
-| **Self-aware** | Baseline maturity indicator — honest about confidence |
+| **Tamper-evident** | SHA-256 hash-chained audit log - RBI-grade |
+| **Confidence-aware** | Baseline maturity indicator shows how much enrolment data backs each score |
 | **Replay-proof** | SHA-256 payload signatures block packet-replay attacks |
 
 ---
@@ -44,14 +44,14 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│           Browser — NexaBank Portal (Madapati Jyothiradithya)    │
+│           Browser - NexaBank Portal (Madapati Jyothiradithya)    │
 │  capture.js: onDecoyTap · onBeneDwell · onAmountKey · onPinKey   │
 │  Sends ONE behavioural JSON package per transaction              │
 └─────────────────────────────┬────────────────────────────────────┘
                               │  POST /enroll | POST /verify
                               ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│                 FastAPI Backend — ML Inference Engine            │
+│                 FastAPI Backend - ML Inference Engine            │
 │                                                                  │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐   │
 │  │  Layer 1        │  │  Layer 2        │  │  Layer 3        │   │
@@ -76,7 +76,7 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
                                │  GET /logs (polls every 2s)
                                ▼
 ┌──────────────────────────────────────────────────────────────────┐
-│              Analyst Dashboard — Real-Time Monitoring            │
+│              Analyst Dashboard - Real-Time Monitoring            │
 │  Live gauge · Layer bars · WHY THIS DECISION panel               │
 │  OTP toast · BLOCK alert + beep · 🛡 Audit verified badge        |
 │  Baseline maturity indicator · Session log table                 │
@@ -87,7 +87,7 @@ An attacker with stolen credentials, a cloned OTP, and even the correct PIN **st
 
 ## The Three Layers
 
-### Layer 1 — CognitiveTrap (Isolation Forest)
+### Layer 1 - CognitiveTrap (Isolation Forest)
 
 Detects interaction with **invisible decoy elements** embedded in the banking UI. Legitimate users who know the interface never touch them. Attackers exploring unfamiliar territory do.
 
@@ -95,7 +95,7 @@ Detects interaction with **invisible decoy elements** embedded in the banking UI
 - Model: Isolation Forest (unsupervised, per-user baseline)
 - Scoring: Continuous 0–100 via anomaly gate + normalized deviation magnitude
 
-### Layer 2 — IntentTrace (Isolation Forest)
+### Layer 2 - IntentTrace (Isolation Forest)
 
 Profiles **navigation intent** through beneficiary dwell time and amount-field typing rhythm. Fraudulent sessions display characteristic hesitation and exploration patterns.
 
@@ -103,13 +103,13 @@ Profiles **navigation intent** through beneficiary dwell time and amount-field t
 - Model: Isolation Forest (per-user baseline, 5-sample enrollment)
 - Scoring: Continuous 0–100
 
-### Layer 3 — RhythmLock (Dynamic Time Warping)
+### Layer 3 - RhythmLock (Dynamic Time Warping)
 
-Captures the **inter-keystroke intervals** (ms) of the user's PIN entry — a behavioural biometric that encodes muscle memory, cognitive rhythm, and motor patterns unique to each individual.
+Captures the **inter-keystroke intervals** (ms) of the user's PIN entry - a behavioural biometric that encodes muscle memory, cognitive rhythm, and motor patterns unique to each individual.
 
 - Signal: `pin_vector` (5 inter-key gaps for a 6-digit PIN)
-- Algorithm: Dynamic Time Warping — tolerates natural speed variation (10% faster when rushed = still you)
-- Scoring: `min(100, dtw_distance / 180 × 100)` — smooth, monotonic
+- Algorithm: Dynamic Time Warping - tolerates natural speed variation (10% faster when rushed = still you)
+- Scoring: `min(100, dtw_distance / 180 × 100)` - smooth, monotonic
 
 ### Fusion
 
@@ -117,8 +117,8 @@ Captures the **inter-keystroke intervals** (ms) of the user's PIN entry — a be
 composite = L1 × 0.30 + L2 × 0.40 + L3 × 0.30
 
 composite < 60  →  ALLOW  (green)
-60 ≤ c < 80    →  OTP    (amber — silent step-up re-auth)
-composite ≥ 80  →  BLOCK  (red — transaction stopped)
+60 ≤ c < 80    →  OTP    (amber - silent step-up re-auth)
+composite ≥ 80  →  BLOCK  (red - transaction stopped)
 ```
 
 ---
@@ -145,7 +145,7 @@ GET /audit/verify                  # API endpoint: {valid, broken_at_session}
 GET /maturity?user_id=X
 # → {samples: 4, required: 5, mature: false, confidence: "low"}
 ```
-Disarms the cold-start question — the system knows when to trust itself.
+Disarms the cold-start question - the system knows when to trust itself.
 
 ### Adaptive Learning
 Every ALLOW session is appended to the user's baseline (sliding window of 20). The model slowly drifts with legitimate behavioural change (new device, lifestyle shift) while remaining resistant to targeted gradual poisoning.
@@ -174,7 +174,7 @@ open benchmark_report.html   # ROC curve + confusion matrix
 ```
 PhantomGrid/
 ├── backend/
-│   ├── main.py                  # FastAPI application — all endpoints
+│   ├── main.py                  # FastAPI application - all endpoints
 │   ├── database.py              # SQLAlchemy engine + session
 │   ├── database_models.py       # ORM models: UserProfile, SessionLog
 │   ├── schemas.py               # Pydantic request/response models
@@ -197,18 +197,17 @@ PhantomGrid/
 │   ├── conftest.py              # Fixtures: fresh_user, enroll_user, verify
 │   └── test_integration.py      # 8 integration tests against live backend
 │
-├── threat_model/
-│   └── THREAT_MODEL.md          # STRIDE + DFD + risk matrix + attack trees
+├── docs/                        # architecture, threat model (STRIDE), security features,
+│                                #   integration notes, technical documentation
 │
 ├── demo_legit.py                # Guaranteed ALLOW demo script
 ├── demo_attacker.py             # Guaranteed BLOCK demo script
 ├── demo_replay.py               # Replay attack demonstration
 ├── verify_audit.py              # Tamper-evident audit demonstration
 ├── benchmark.py                 # 300-session ROC/AUC benchmark
-├── benchmark_report.html        # Benchmark visualisation
+├── cmu_keystroke.csv            # CMU keystroke-dynamics benchmark data (see Dataset)
 ├── config.py                    # Central configuration
 ├── architecture.svg             # System architecture diagram
-├── DEMO_RUNBOOK.md              # Complete demo-day runbook
 └── README.md                    # This file
 ```
 
@@ -221,14 +220,14 @@ PhantomGrid/
 - Python 3.10 or higher
 - pip
 
-### Step 1 — Clone the Repository
+### Step 1 - Clone the Repository
 
 ```bash
 git clone https://github.com/Pyhroff/PhantomGrid.git
 cd PhantomGrid
 ```
 
-### Step 2 — Install Dependencies
+### Step 2 - Install Dependencies
 
 ```bash
 pip install fastapi "uvicorn[standard]" scikit-learn sqlalchemy pydantic dtaidistance requests pytest matplotlib numpy
@@ -236,7 +235,7 @@ pip install fastapi "uvicorn[standard]" scikit-learn sqlalchemy pydantic dtaidis
 
 No virtual environment required. All dependencies are pure Python or have pre-built wheels for Windows/Linux/macOS.
 
-### Step 3 — Verify Installation
+### Step 3 - Verify Installation
 
 ```bash
 python -c "import fastapi, sklearn, dtaidistance, sqlalchemy; print('All dependencies OK')"
@@ -262,7 +261,7 @@ The SQLite database is created automatically at `backend/phantomgrid.db` on firs
 
 ## Running the Application
 
-### Terminal 1 — Start the Backend
+### Terminal 1 - Start the Backend
 
 ```bash
 cd backend
@@ -276,7 +275,7 @@ Application startup complete.
 
 Swagger UI (interactive API docs): `http://127.0.0.1:8000/docs`
 
-### Terminal 2 — Start the Dashboard Server
+### Terminal 2 - Start the Dashboard Server
 
 ```bash
 cd dashboard
@@ -285,7 +284,7 @@ python -m http.server 5599
 
 Open browser → `http://localhost:5599`
 
-### Browser — Open the Bank Portal
+### Browser - Open the Bank Portal
 
 ```
 frontend/Nexa_bank_demoUI.html?enroll=true
@@ -376,7 +375,7 @@ tests/test_integration.py::test_session_logged_after_verify              PASSED
 8 passed in ~10s
 ```
 
-Tests auto-skip if the backend is offline. Each test uses an isolated `fresh_user` (UUID-based) — no cross-test baseline pollution.
+Tests auto-skip if the backend is offline. Each test uses an isolated `fresh_user` (UUID-based) - no cross-test baseline pollution.
 
 ---
 
@@ -453,11 +452,11 @@ No generative AI (LLMs, diffusion models, etc.) is used. All ML is classical/sta
 
 ## Security & Compliance
 
-- **No PII stored** — PIN digits never persisted; only millisecond timing intervals
-- **Data localisation ready** — SQLite on-device; production path: `aws ap-south-1` / `azure centralindia`
-- **DPDP Act 2023** — Behavioral timing vectors are derived metrics, not physiological biometrics
-- **RBI Master Direction (2021)** — Risk-based step-up authentication (OTP triggered at 60–79, not blanket)
-- **Tamper-evident audit** — SHA-256 hash chain on `session_logs` satisfies audit trail requirements
+- **No PII stored** - PIN digits never persisted; only millisecond timing intervals
+- **Data localisation ready** - SQLite on-device; production path: `aws ap-south-1` / `azure centralindia`
+- **DPDP Act 2023** - Behavioral timing vectors are derived metrics, not physiological biometrics
+- **RBI Master Direction (2021)** - Risk-based step-up authentication (OTP triggered at 60–79, not blanket)
+- **Tamper-evident audit** - SHA-256 hash chain on `session_logs` satisfies audit trail requirements
 
 ---
 
@@ -465,11 +464,11 @@ No generative AI (LLMs, diffusion models, etc.) is used. All ML is classical/sta
 
 The demo video (`Demo Video PhantomGrid.mp4`) is included in this submission ZIP. It demonstrates:
 
-1. Live legitimate session — dashboard scores **ALLOW** (composite ~2)
-2. Attacker with correct credentials — gauge reaches 100 — **BLOCK** fires
-3. Replay attack defence — duplicate payload detected, forced **BLOCK**
-4. Tamper-evident audit chain — single row edit detected, chain invalidated
-5. Full integration test suite — **8/8 passed** against live backend
+1. Live legitimate session - dashboard scores **ALLOW** (composite ~2)
+2. Attacker with correct credentials - gauge reaches 100 - **BLOCK** fires
+3. Replay attack defence - duplicate payload detected, forced **BLOCK**
+4. Tamper-evident audit chain - single row edit detected, chain invalidated
+5. Full integration test suite - **8/8 passed** against live backend
 
 🌐 **Run locally:** `uvicorn main:app --host 127.0.0.1 --port 8000` from `backend/`, then [Swagger UI](http://127.0.0.1:8000/docs)
 
@@ -488,7 +487,7 @@ The demo video (`Demo Video PhantomGrid.mp4`) is included in this submission ZIP
 | Infrastructure cost to deploy | **Zero** (JS snippet + API server) |
 | Time to integrate into existing banking portal | **< 1 day** |
 
-PhantomGrid catches account takeovers **before money moves** — not after the transaction is flagged by fraud analytics. This shifts the defence from reactive to real-time, closing the window that costs PSBs crores daily.
+PhantomGrid catches account takeovers **before money moves** - not after the transaction is flagged by fraud analytics. This shifts the defence from reactive to real-time, closing the window that costs PSBs crores daily.
 
 ---
 
@@ -496,13 +495,17 @@ PhantomGrid catches account takeovers **before money moves** — not after the t
 
 | Role | Name | Institute | GitHub |
 |------|------|-----------|--------|
-| Frontend — Behavioural Signal Capture | **Madapati Jyothiradithya** | IIIT Kottayam |[GitHub](https://github.com/Adithya9x) |
-| Backend — ML Engine + FastAPI | **Kontheti Sai Akhilesh** | IIIT Kottayam |[GitHub](https://github.com/SaiAkhilesh026) |
+| Frontend - Behavioural Signal Capture | **Madapati Jyothiradithya** | IIIT Kottayam |[GitHub](https://github.com/Adithya9x) |
+| Backend - ML Engine + FastAPI | **Kontheti Sai Akhilesh** | IIIT Kottayam |[GitHub](https://github.com/SaiAkhilesh026) |
 | Dashboard + Tests + Threat Model + Security (Lead) | **Praising Y Harris Ratnam** | IIIT Kottayam |[GitHub](https://github.com/Pyhroff) |
 
-**Team ZeroIntent** · S.No. 8 · CBI Hackathon 2026 · MNNIT Allahabad
+**Team ZeroIntent** · CBI Hackathon 2026 · IIIT Kottayam
 
 ---
+
+## Dataset
+
+`cmu_keystroke.csv` is the CMU keystroke-dynamics benchmark dataset (Killourhy and Maxion, 2009), used by `benchmark.py` as the source of typing-rhythm samples. It is third-party data and is not covered by this repository's license; see the original authors' terms.
 
 ## License
 
@@ -510,6 +513,3 @@ MIT License. See `LICENSE` for details.
 
 ---
 
-<p align="center">
-  <i>Passive. Invisible. Unbeatable.</i>
-</p>
