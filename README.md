@@ -23,7 +23,7 @@
 
 PhantomGrid is a three-layer **passive behavioural authentication engine** that runs silently beneath a banking portal. It authenticates users **continuously** - not just at login - by watching *how* they interact rather than *what* they know.
 
-An attacker with stolen credentials, a cloned OTP, and even the correct PIN **still cannot get in** - because their behavioural fingerprint is wrong.
+PhantomGrid is a research/demo control for detecting sessions whose interaction patterns diverge from an enrolled behavioural baseline. It is **not a replacement for authentication, authorization, or transaction signing**.
 
 Passwords and OTPs can be stolen. Typing and interaction rhythm is much harder to replicate.
 
@@ -34,7 +34,7 @@ Passwords and OTPs can be stolen. Typing and interaction rhythm is much harder t
 | **Passive** | Zero friction - users do nothing extra |
 | **Continuous** | Every session scored end-to-end, not just at login |
 | **Explainable** | Per-layer risk breakdown shown to the analyst |
-| **Tamper-evident** | SHA-256 hash-chained audit log - RBI-grade |
+| **Tamper-evident** | SHA-256 hash-chained audit log; useful for detecting post-write modification in the demo database |
 | **Confidence-aware** | Baseline maturity indicator shows how much enrolment data backs each score |
 | **Replay-proof** | SHA-256 payload signatures block packet-replay attacks |
 
@@ -123,7 +123,13 @@ composite ≥ 80  →  BLOCK  (red - transaction stopped)
 
 ---
 
-## Advanced Security Features
+## Security Scope and Limitations
+
+PhantomGrid demonstrates behavioral anomaly detection and tamper-evident logging in a controlled banking-portal prototype. It should **not** be described as RBI-certified, RBI-grade, production-ready banking authentication, or a standalone defense against account takeover.
+
+The current demo API intentionally prioritizes hackathon demonstrability over a complete identity and authorization layer. In particular, endpoints such as session-log access, maturity inspection, and user reset require a production authentication/authorization design before deployment. Replay detection state is also process-local, and adaptive learning requires additional anti-poisoning controls in a real deployment.
+
+### Advanced Security Features
 
 ### Replay-Attack Defence
 Every `/verify` payload is SHA-256 signed. An exact duplicate within a 5-minute window is detected by `services/audit.py::is_replay()` → forced BLOCK + `replay_detected: true` in response.
@@ -148,19 +154,19 @@ GET /maturity?user_id=X
 Disarms the cold-start question - the system knows when to trust itself.
 
 ### Adaptive Learning
-Every ALLOW session is appended to the user's baseline (sliding window of 20). The model slowly drifts with legitimate behavioural change (new device, lifestyle shift) while remaining resistant to targeted gradual poisoning.
+Every ALLOW session is appended to the user's baseline (sliding window of 20). The model slowly drifts with legitimate behavioural change (new device, lifestyle shift) while providing a bounded sliding-window adaptation mechanism. **This is not a claim of poisoning resistance; production deployments would need authenticated enrollment, durable state, rate limits, and dedicated poisoning defenses.**
 
 ---
 
 ## Performance Benchmark
 
-Validated on a 300-session synthetic cohort (150 legit, 150 attacker):
+Validated on the repository's 300-session **synthetic benchmark cohort** (150 legit, 150 attacker). These figures are benchmark results, not production fraud-detection performance:
 
 | Metric | Result |
 |--------|--------|
-| Detection Rate (TPR) | **95.3%** |
-| False Positive Rate | **0.0%** |
-| AUC (ROC) | **1.00** |
+| Detection Rate (TPR) | **95.3%** *(synthetic benchmark)* |
+| False Positive Rate | **0.0%** *(synthetic benchmark)* |
+| AUC (ROC) | **1.00** *(synthetic benchmark)* |
 
 ```bash
 python benchmark.py          # Regenerate results
