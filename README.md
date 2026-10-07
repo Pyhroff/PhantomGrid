@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/DTW-dtaidistance-purple" />
   <img src="https://img.shields.io/badge/SQLite-Audit--Chained-lightgrey" />
   <img src="https://img.shields.io/badge/Tests-8%2F8%20passing-brightgreen" />
-  <img src="https://img.shields.io/badge/Detection-95.3%25-red" />
+  <img src="https://img.shields.io/badge/Detection-benchmark--only-orange" />
 </p>
 
 > **CBI Hackathon 2026 - Phase II Submission**
@@ -23,7 +23,7 @@
 
 PhantomGrid is a three-layer **passive behavioural authentication engine** that runs silently beneath a banking portal. It authenticates users **continuously** - not just at login - by watching *how* they interact rather than *what* they know.
 
-An attacker with stolen credentials, a cloned OTP, and even the correct PIN **still cannot get in** - because their behavioural fingerprint is wrong.
+An attacker with stolen credentials may be challenged by the behavioural model when their interaction differs from the enrolled baseline. This is a research prototype, not a guarantee against account takeover.
 
 Passwords and OTPs can be stolen. Typing and interaction rhythm is much harder to replicate.
 
@@ -34,7 +34,7 @@ Passwords and OTPs can be stolen. Typing and interaction rhythm is much harder t
 | **Passive** | Zero friction - users do nothing extra |
 | **Continuous** | Every session scored end-to-end, not just at login |
 | **Explainable** | Per-layer risk breakdown shown to the analyst |
-| **Tamper-evident** | SHA-256 hash-chained audit log - RBI-grade |
+| **Tamper-evident** | SHA-256 hash-chained audit log (prototype) |
 | **Confidence-aware** | Baseline maturity indicator shows how much enrolment data backs each score |
 | **Replay-proof** | SHA-256 payload signatures block packet-replay attacks |
 
@@ -158,9 +158,9 @@ Validated on a 300-session synthetic cohort (150 legit, 150 attacker):
 
 | Metric | Result |
 |--------|--------|
-| Detection Rate (TPR) | **95.3%** |
-| False Positive Rate | **0.0%** |
-| AUC (ROC) | **1.00** |
+| Detection Rate (TPR) | **95.3%** *(synthetic benchmark)* |
+| False Positive Rate | **0.0%** *(synthetic benchmark)* |
+| AUC (ROC) | **1.00** *(synthetic benchmark)* |
 
 ```bash
 python benchmark.py          # Regenerate results
