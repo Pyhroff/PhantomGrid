@@ -1,5 +1,7 @@
 # PhantomGrid - AI-Driven Passive Behavioural Authentication Engine
 
+[![CI](https://github.com/Pyhroff/PhantomGrid/actions/workflows/ci.yml/badge.svg)](https://github.com/Pyhroff/PhantomGrid/actions/workflows/ci.yml)
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/Pyhroff/PhantomGrid/master/architecture.svg" width="720" alt="PhantomGrid Architecture"/>
 </p>
