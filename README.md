@@ -458,13 +458,13 @@ No generative AI (LLMs, diffusion models, etc.) is used. All ML is classical/sta
 - **Data localisation ready** - SQLite on-device; production path: `aws ap-south-1` / `azure centralindia`
 - **DPDP Act 2023** - Behavioral timing vectors are derived metrics, not physiological biometrics
 - **RBI Master Direction (2021)** - Risk-based step-up authentication (OTP triggered at 60–79, not blanket)
-- **Tamper-evident audit** - SHA-256 hash chain on `session_logs` satisfies audit trail requirements
+- **Tamper-evident audit** - SHA-256 hash chain on `session_logs`, so editing any logged row breaks the chain
 
 ---
 
 ## Demo Video
 
-The demo video (`Demo Video PhantomGrid.mp4`) is included in this submission ZIP. It demonstrates:
+The demo video was submitted with the hackathon entry and is not stored in this repository. It shows:
 
 1. Live legitimate session - dashboard scores **ALLOW** (composite ~2)
 2. Attacker with correct credentials - gauge reaches 100 - **BLOCK** fires
@@ -476,20 +476,20 @@ The demo video (`Demo Video PhantomGrid.mp4`) is included in this submission ZIP
 
 ---
 
-## Expected Impact & ROI
+## Why it matters
 
-| Metric | Value |
-|--------|-------|
-| PSB account holders at risk | 600M+ |
-| Annual digital fraud loss (PSBs) | ₹7,400 crore |
-| PhantomGrid detection rate | **95.3%** |
-| False positive rate | **0.0%** |
-| Estimated fraud prevented (at 95.3% detection) | ~₹7,050 crore/year |
-| Extra friction added for legitimate users | **Zero** |
-| Infrastructure cost to deploy | **Zero** (JS snippet + API server) |
-| Time to integrate into existing banking portal | **< 1 day** |
+Account takeover with stolen credentials is a large share of digital banking fraud, and a correct PIN alone cannot tell the account holder from an attacker. PhantomGrid's bet is that *how* someone types and moves (timing, rhythm, navigation) differs even when *what* they type is identical, and that this can trigger step-up authentication before money moves instead of after fraud analytics flag the transaction.
 
-PhantomGrid catches account takeovers **before money moves** - not after the transaction is flagged by fraud analytics. This shifts the defence from reactive to real-time, closing the window that costs PSBs crores daily.
+The detection figures above come from a synthetic cohort built on the public CMU keystroke dataset; they show the pipeline works end to end, not what detection or false-positive rates a bank would see in production.
+
+---
+
+## Limitations
+
+- Evaluated on a 300-session synthetic cohort (150 legitimate, 150 attacker) derived from the CMU keystroke dataset, not on real banking sessions; 0% false positives and AUC 1.00 reflect how separable that synthetic data is.
+- Behavioural signals drift with device, injury, fatigue and accessibility tools; a deployment would need per-user re-enrolment and a fallback path that does not lock people out.
+- An attacker who can observe and replay a user's timing (malware on the device) is out of scope beyond the replay-duplicate check.
+- The compliance notes above are design intentions mapped to DPDP 2023 and RBI guidance, not an assessed compliance status.
 
 ---
 
