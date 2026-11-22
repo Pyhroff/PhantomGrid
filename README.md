@@ -357,11 +357,11 @@ python benchmark.py
 
 ## Running Tests
 
-With the backend running on port 8000:
-
 ```bash
 pytest tests/ -v
 ```
+
+If a backend is already running at `PHANTOMGRID_TEST_URL` (default `http://127.0.0.1:8000`) the tests use it. Otherwise the test session starts one on that port with a temporary SQLite database and stops it afterwards, so a plain `pytest` works from a fresh clone.
 
 Expected output:
 ```
@@ -377,7 +377,7 @@ tests/test_integration.py::test_session_logged_after_verify              PASSED
 8 passed in ~10s
 ```
 
-Tests auto-skip if the backend is offline. Each test uses an isolated `fresh_user` (UUID-based) - no cross-test baseline pollution.
+Each test uses an isolated `fresh_user` (UUID-based) - no cross-test baseline pollution.
 
 ---
 

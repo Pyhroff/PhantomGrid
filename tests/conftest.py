@@ -8,6 +8,10 @@ natural variance; identical samples degenerate the IsolationForest.
 
 import pytest
 import requests
+import subprocess
+import tempfile
+import time
+import urllib.parse
 import uuid
 import sys
 import os
@@ -48,10 +52,52 @@ def _api_online() -> bool:
         return False
 
 
+def _start_local_backend():
+    """Start the FastAPI backend on the port in BASE_URL, using a throw-away SQLite file.
+
+    Returns (process, tempdir) or None if the URL is not a local one.
+    """
+    parsed = urllib.parse.urlparse(BASE_URL)
+    if parsed.hostname not in ("127.0.0.1", "localhost"):
+        return None
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    tmp = tempfile.TemporaryDirectory(prefix="phantomgrid-test-")
+    env = {**os.environ, "SQLITE_PATH": os.path.join(tmp.name, "test.db")}
+    proc = subprocess.Popen(
+        [sys.executable, "-m", "uvicorn", "main:app",
+         "--host", "127.0.0.1", "--port", str(parsed.port or 8000)],
+        cwd=os.path.join(root, "backend"), env=env,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    return proc, tmp
+
+
 @pytest.fixture(scope="session", autouse=True)
 def require_backend():
-    if not _api_online():
-        pytest.skip("Backend offline — skipping all integration tests")
+    """Use a running backend if there is one; otherwise start one for this test session."""
+    if _api_online():
+        yield
+        return
+    started = _start_local_backend()
+    if started is None:
+        pytest.skip(f"Backend at {BASE_URL} is offline and cannot be started locally")
+    proc, tmp = started
+    try:
+        deadline = time.time() + 30
+        while time.time() < deadline and not _api_online():
+            if proc.poll() is not None:
+                break
+            time.sleep(0.5)
+        if not _api_online():
+            pytest.skip("Backend did not start (are the requirements installed?)")
+        yield
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        tmp.cleanup()
 
 
 @pytest.fixture(scope="function")
