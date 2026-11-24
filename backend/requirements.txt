@@ -1,8 +1,8 @@
-fastapi==0.111.0
-uvicorn[standard]==0.29.0
-scikit-learn==1.4.2
-sqlalchemy==2.0.30
-pydantic==2.7.1
-dtaidistance==2.3.12
-requests==2.32.3
-psycopg2-binary==2.9.9
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+scikit-learn==1.9.1
+sqlalchemy==2.1.9
+pydantic==2.14.4
+dtaidistance==2.5.1
+requests==2.34.2
+psycopg2-binary==2.9.13
